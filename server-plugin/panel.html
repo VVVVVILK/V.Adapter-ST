@@ -546,7 +546,7 @@ async function loadSettings() {
   $('#s-qwen-model').value = s.qwen_model || '';
   $('#s-default-size').value = s.default_size || '';
   $('#s-listen').value = s.listen || '';
-  $('#s-chat-fallback').value = s.chat_fallback || 'auto';
+  $('#s-chat-fallback').value = s.chat_fallback || 'chat_only';
   $('#s-qwen-key').value = '';
   $('#s-nai-key').value = '';
   $('#s-qwen-key').placeholder = s.qwen_key_set ? (s.qwen_key_masked + '（留空不改）') : '（未设置）';
