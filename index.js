@@ -295,6 +295,18 @@ window.__V_ADAPTER_NAI__ = async function (naiBody, options) {
         }
 
         const r = await runGeneration(prompt, neg, size);
+        // CORS 降级结果：上游只给出远程链接、浏览器侧因跨域下载不到字节。
+        // 此时把链接经 url 字段原样交回调用方，由调用方直接引用远程图；
+        // 若不区分，调用方会把「无字节的成功结果」误判为失败。
+        if (!r.data && r.remoteUrl) {
+            return {
+                status: 200,
+                contentType: `image/${r.ext === 'jpg' ? 'jpeg' : r.ext}`,
+                bytes: null,
+                url: r.remoteUrl,
+                via: r.via,
+            };
+        }
         return {
             status: 200,
             contentType: `image/${r.ext === 'jpg' ? 'jpeg' : r.ext}`,
