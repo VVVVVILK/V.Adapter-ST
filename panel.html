@@ -426,7 +426,9 @@ function showImgError(el, url) {
     tip.className = 'img-broken';
     el.insertAdjacentElement('afterend', tip);
   }
-  tip.innerHTML = '<b>图片未能加载</b><br>' + esc(url || '');
+  tip.innerHTML = '<b>图片未能加载</b><br>' +
+    '<a href="' + esc(url || '') + '" target="_blank" rel="noopener noreferrer">在新标签页打开这个地址（可用于判断是链接失效还是本机网络问题）</a><br>' +
+    esc(url || '');
 }
 
 let AUTH = { setup_required: false, locked: false };
@@ -673,6 +675,8 @@ async function testConnection() {
     const u = imgUrl(d.preview);
     img.onerror = () => showImgError(img, u);
     img.onload = () => { img.style.display = 'block'; };
+    // 远程图片禁用 Referer：上游 CDN 有防盗链，带酒馆地址的 Referer 一律 403
+    img.referrerPolicy = 'no-referrer';
     img.src = u;
   }
   toast('测试连接成功（' + d.latency_ms + 'ms，' + d.via + '）');
@@ -734,6 +738,8 @@ function trShowImage(d) {
   const img = $('#tr-image');
   const u = imgUrl(d.preview);
   img.onerror = () => showImgError(img, u);
+  // 远程图片禁用 Referer：上游 CDN 有防盗链，带酒馆地址的 Referer 一律 403
+  img.referrerPolicy = 'no-referrer';
   img.src = u;
   $('#tr-image-wrap').style.display = 'block';
   const a = $('#btn-dl-image');
