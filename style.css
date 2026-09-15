@@ -69,38 +69,129 @@
     cursor: default;
 }
 
-/* ── 管理面板浮层 ── */
+/* ── 管理面板浮层 ──
+   尺寸完全由绝对定位的上下左右偏移决定，不使用百分比高度或弹性伸缩：
+   手机浏览器与应用内 WebView 对固定定位 + 百分比高度的解析差异较大，
+   偏移量写死可以保证任何一端都能拿到非零的可视区域。 */
 #v_adapter_panel_overlay {
+    --va-pad: 24px;
+    --va-chrome: 30px;
+    --va-gap: 10px;
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
+    width: 100%;
+    /* 不能用 top/bottom 偏移或百分比高度：酒馆在移动端把 body 设为 position: fixed，
+       这两者在安卓 Chromium 下会解析成 0 高度，浮层被压扁、面板内容不可见。
+       100vh 与 JS 赋的像素值在移动端与桌面端都能拿到满屏高度。 */
+    height: 100vh;
     z-index: 9999;
     background: rgba(0, 0, 0, 0.75);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 24px;
+    box-sizing: border-box;
+}
+
+/* 窄屏（手机）：浮层整屏，仅保留一条操作栏，面板内容全宽显示 */
+@media (max-width: 720px) {
+    #v_adapter_panel_overlay {
+        --va-pad: 0px;
+        --va-chrome: 44px;
+        --va-gap: 0px;
+    }
 }
 
 #v_adapter_panel_overlay .v_adapter_panel_chrome {
-    width: min(1240px, 100%);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--va-chrome);
+    box-sizing: border-box;
+    padding: 0 var(--va-pad);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 10px;
     color: #fff;
     font-size: 14px;
     font-weight: 600;
-    margin-bottom: 8px;
+}
+
+#v_adapter_panel_overlay .v_adapter_panel_chrome > span:first-child {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 #v_adapter_panel_overlay .v_adapter_panel_chrome .menu_button {
     color: #fff;
+    white-space: nowrap;
+    flex: none;
+}
+
+@media (max-width: 720px) {
+    #v_adapter_panel_overlay .v_adapter_panel_chrome .menu_button {
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+}
+
+#v_adapter_panel_overlay .v_adapter_panel_actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: none;
 }
 
 #v_adapter_panel_overlay #v_adapter_panel_iframe {
-    width: min(1240px, 100%);
-    height: 100%;
+    position: absolute;
+    top: calc(var(--va-chrome) + var(--va-gap));
+    left: var(--va-pad);
+    /* iframe 是替换元素：width/height 取 auto 会退回固有尺寸 300x150，
+       左右偏移随之失效，因此这里显式算出尺寸。 */
+    width: calc(100% - var(--va-pad) * 2);
+    height: calc(100% - var(--va-chrome) - var(--va-gap) - var(--va-pad));
     border: none;
     border-radius: 12px;
     background: #0f172a;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* 内嵌加载失败时的兜底提示（部分手机浏览器与应用内 WebView 禁止 iframe） */
+#v_adapter_panel_overlay #v_adapter_panel_fallback {
+    display: none;
+    position: absolute;
+    top: calc(var(--va-chrome) + var(--va-gap));
+    left: var(--va-pad);
+    right: var(--va-pad);
+    bottom: var(--va-pad);
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    box-sizing: border-box;
+    background: #0f172a;
+    border-radius: 12px;
+}
+
+#v_adapter_panel_overlay #v_adapter_panel_fallback.show {
+    display: flex;
+}
+
+#v_adapter_panel_overlay .v_adapter_panel_fallback_card {
+    max-width: 460px;
+    color: #e2e8f0;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+#v_adapter_panel_overlay .v_adapter_panel_fallback_card b {
+    display: block;
+    font-size: 15px;
+    margin-bottom: 8px;
+}
+
+#v_adapter_panel_overlay .v_adapter_panel_fallback_card p {
+    margin: 0 0 14px;
+    color: #94a3b8;
 }

@@ -401,14 +401,26 @@ let AUTH = { setup_required: false, locked: false };
 let STATUS = {};
 
 /* ── 通用请求 ── */
+// 桥接函数挂在酒馆页面对象上，本页可能以内嵌 iframe（window.parent）打开，
+// 也可能被新标签页打开（window.opener）。两种情形都指向同一个酒馆页面。
+const HOST = (() => {
+  try { if (window.parent && window.parent !== window) return window.parent; } catch (e) { /* 跨域忽略 */ }
+  try { if (window.opener) return window.opener; } catch (e) { /* 跨域忽略 */ }
+  return window;
+})();
+
 async function api(path, opts = {}) {
   // 扩展版桥接：面板 UI 与功能 1:1 保留，仅把 HTTP 层换成扩展内置虚拟端点
-  // （window.parent.__V_ADAPTER_API__ 由扩展注入，返回 {ok, status, data}）。
+  // （__V_ADAPTER_API__ 由扩展注入，返回 {ok, status, data}）。
   let parsed = null;
   if (opts.body) {
     try { parsed = JSON.parse(opts.body); } catch (e) { parsed = null; }
   }
-  return await window.parent.__V_ADAPTER_API__(path, (opts.method || 'GET'), parsed);
+  const bridge = HOST && HOST.__V_ADAPTER_API__;
+  if (typeof bridge !== 'function') {
+    throw new Error('未连接到酒馆页面：请从扩展抽屉内的「打开管理面板」进入');
+  }
+  return await bridge(path, (opts.method || 'GET'), parsed);
 }
 
 function toast(msg, kind = 'ok') {

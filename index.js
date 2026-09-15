@@ -28,9 +28,7 @@ import { handleApi } from './lib/virtual-api.js';
 
 // 设置命名空间（保持小写标识，作为 extension_settings 的存储键，不随显示名变化）。
 export const MODULE_NAME = 'v-adapter';
-const version = 'v1.1.4-st.1';
-
-const moduleUrl = new URL('.', import.meta.url).href;
+const version = 'v1.1.5-st.1';
 
 // ── 初始化 ──
 export async function init() {
@@ -236,29 +234,99 @@ function registerSlashCommand() {
 }
 
 // ── 管理面板弹窗（panel.html 1:1 保留，经桥接调用内置端点）──
+//
+// 以 iframe 内嵌方式打开：不走 window.open，避免手机端弹窗拦截。
+// 面板地址用真实 URL（src），不用 srcdoc —— 后者在部分手机浏览器与应用内
+// WebView 中被限制，会导致面板内容空白。浮层高度由 CSS 的 100vh 兜底、
+// 并由 bindPanelFit 按可视视口赋精确像素值，内嵌失败时给出提示并提供新标签页入口。
+
+let panelFitHandler = null;
+
+// 浮层高度按可视视口精确赋值：移动端浏览器地址栏收起/展开、横竖屏切换都会改变可视高度。
+function fitPanelHeight(el) {
+    const h = Math.round((window.visualViewport && window.visualViewport.height) || window.innerHeight || 0);
+    if (h > 0) el.style.height = h + 'px';
+}
+
+function bindPanelFit(el) {
+    panelFitHandler = () => fitPanelHeight(el);
+    fitPanelHeight(el);
+    window.addEventListener('resize', panelFitHandler);
+    window.addEventListener('orientationchange', panelFitHandler);
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', panelFitHandler);
+}
+
+function unbindPanelFit() {
+    if (!panelFitHandler) return;
+    window.removeEventListener('resize', panelFitHandler);
+    window.removeEventListener('orientationchange', panelFitHandler);
+    if (window.visualViewport) window.visualViewport.removeEventListener('resize', panelFitHandler);
+    panelFitHandler = null;
+}
 
 async function openPanel() {
-    $('#v_adapter_panel_overlay').remove();
+    closePanel();
     const overlay = $(`
         <div id="v_adapter_panel_overlay">
             <div class="v_adapter_panel_chrome">
                 <span>V.Adapter 管理面板</span>
-                <button class="menu_button" id="v_adapter_panel_close">关闭</button>
+                <div class="v_adapter_panel_actions">
+                    <button class="menu_button" id="v_adapter_panel_newtab">新标签页</button>
+                    <button class="menu_button" id="v_adapter_panel_close">关闭</button>
+                </div>
             </div>
-            <iframe id="v_adapter_panel_iframe" title="V.Adapter"></iframe>
+            <iframe id="v_adapter_panel_iframe" title="V.Adapter 管理面板"></iframe>
+            <div id="v_adapter_panel_fallback">
+                <div class="v_adapter_panel_fallback_card">
+                    <b>面板未能内嵌显示</b>
+                    <p>当前浏览环境可能禁止内嵌页面（部分手机浏览器与应用内 WebView 会限制 iframe）。
+                       改用新标签页打开面板，功能与内嵌方式一致。</p>
+                    <button class="menu_button" id="v_adapter_panel_fallback_open">在新标签页打开面板</button>
+                </div>
+            </div>
         </div>`);
     $('body').append(overlay);
+    bindPanelFit(overlay[0]);
 
     // 桥接：__V_ADAPTER_API__ → 面板的 /admin/* 端点（设置中心 / 画风 / 转译 / 记录）。
     window.__V_ADAPTER_API__ = handleApi;
 
-    const html = await fetch(moduleUrl + 'panel.html').then(r => r.text());
+    const url = new URL('./panel.html', import.meta.url).href + '?v=' + encodeURIComponent(version);
     const frame = overlay.find('#v_adapter_panel_iframe')[0];
-    frame.srcdoc = html;
-    overlay.find('#v_adapter_panel_close').on('click', () => {
-        overlay.remove();
-        delete window.__V_ADAPTER_API__;
+
+    // 新标签页入口：面板页会改从 window.opener 取桥接函数，因此同样可用。
+    const openInNewTab = () => {
+        const w = window.open(url, '_blank');
+        if (!w) overlay.find('#v_adapter_panel_fallback').addClass('show');
+    };
+
+    let loaded = false;
+    frame.addEventListener('load', () => {
+        // 未设置 src 时也会触发一次 load（about:blank），据 body 是否为空区分。
+        try {
+            const doc = frame.contentDocument;
+            if (doc && doc.body && doc.body.childElementCount > 0) loaded = true;
+        } catch {
+            loaded = true; // 跨域无法读取内容时视为已加载
+        }
     });
+    frame.src = url;
+
+    overlay.find('#v_adapter_panel_close').on('click', closePanel);
+    overlay.find('#v_adapter_panel_newtab').on('click', openInNewTab);
+    overlay.find('#v_adapter_panel_fallback_open').on('click', openInNewTab);
+
+    setTimeout(() => {
+        if (!loaded && document.body.contains(frame)) {
+            overlay.find('#v_adapter_panel_fallback').addClass('show');
+        }
+    }, 8000);
+}
+
+function closePanel() {
+    $('#v_adapter_panel_overlay').remove();
+    unbindPanelFit();
+    try { delete window.__V_ADAPTER_API__; } catch { /* 忽略 */ }
 }
 
 
