@@ -26,7 +26,10 @@ const DEFAULTS = {
     qwen_model: 'qwen3.8-max',
     default_size: '1024x1024',
     nai_key: 'v-adapter-8888',
-    chat_fallback: 'auto',
+    // 默认走聊天接口生图：标准生图接口（/images/generations）在上游被阿里云 WAF
+    // 风控拦截时不可用（返回 429），而聊天接口稳定可用且同样能出图。
+    // 需要标准接口的用户可改回 auto / off / openai。
+    chat_fallback: 'chat_only',
 };
 
 let rt = { ...DEFAULTS };
