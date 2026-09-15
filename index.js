@@ -262,6 +262,54 @@ async function openPanel() {
 }
 
 
+// ── 页面内调用桥：供同一酒馆页面内的其他扩展直接调用 ──
+//
+// V.Canvas 与本扩展通常装在同一个酒馆实例里，二者处于同一个页面上下文，
+// 因此可以直接以函数调用完成 NAI 协议的请求与应答：不需要监听端口，
+// 也不需要把服务端实现部署到 <SillyTavern>/plugins/ 下，更不需要重启酒馆。
+// 由此，两个扩展在任意酒馆（本机 / 服务器 / 移动端）安装后即可使用。
+//
+// 入参：标准 NAI 请求体；第二参数 { expand } 表示是否先做提示词扩写。
+// 返回：{ status, contentType, bytes }；失败时为 { status, error }。
+// 语义与 HTTP 响应一致，调用方按同一套分支处理即可。
+
+window.__V_ADAPTER_NAI__ = async function (naiBody, options) {
+    try {
+        const p = naiBody?.parameters ?? {};
+        let prompt = String(naiBody?.input ?? '').trim();
+        let neg = String(p.negative_prompt ?? '').trim();
+        const w = Number(p.width) || 0;
+        const h = Number(p.height) || 0;
+        let size = (w > 0 && h > 0) ? `${w}x${h}` : '';
+
+        if (options?.expand) {
+            const target = {
+                url: settingsGet.qwenURL(),
+                key: settingsGet.qwenKey(),
+                model: settingsGet.qwenModel(),
+            };
+            const t = await translateCharacter(target, prompt);
+            prompt = t.prompt;
+            neg = t.negative_prompt;
+            if (size === '') size = `${t.width}x${t.height}`;
+        }
+
+        const r = await runGeneration(prompt, neg, size);
+        return {
+            status: 200,
+            contentType: `image/${r.ext === 'jpg' ? 'jpeg' : r.ext}`,
+            bytes: r.data,
+            via: r.via,
+        };
+    } catch (err) {
+        return {
+            status: 502,
+            contentType: 'application/json',
+            error: String(err?.message ?? err),
+        };
+    }
+};
+
 // ── 扩展抽屉 UI（协议服务启停 + 名称 + 版本 + 打开管理面板）──
 //
 // 抽屉只保留服务开关这类一步到位的动作。参数类功能仍在管理面板（panel.html）里，
@@ -277,18 +325,24 @@ function addSettingsUI() {
             </div>
             <div class="inline-drawer-content v_adapter_content">
                 <div class="v_adapter_row v_adapter_svc">
-                    <span class="v_adapter_svc_label">协议服务</span>
-                    <span id="v_adapter_svc_state" class="v_adapter_svc_state">检测中…</span>
+                    <span class="v_adapter_svc_label">出图引擎</span>
+                    <span id="v_adapter_svc_state" class="v_adapter_svc_state v_adapter_svc_on">就绪</span>
                 </div>
-                <div class="v_adapter_row">
-                    <button id="v_adapter_svc_toggle" class="menu_button">
-                        <i class="fa-solid fa-power-off"></i><span>启动协议服务</span>
-                    </button>
-                </div>
-                <div class="v_adapter_row">
-                    <button id="v_adapter_svc_reload" class="menu_button">
-                        <i class="fa-solid fa-rotate"></i><span>重载实现</span>
-                    </button>
+                <div id="v_adapter_svc_block" class="v_adapter_svc_block">
+                    <div class="v_adapter_row v_adapter_svc">
+                        <span class="v_adapter_svc_label">协议服务</span>
+                        <span id="v_adapter_svc_detail" class="v_adapter_svc_state">—</span>
+                    </div>
+                    <div class="v_adapter_row">
+                        <button id="v_adapter_svc_toggle" class="menu_button">
+                            <i class="fa-solid fa-power-off"></i><span>启动协议服务</span>
+                        </button>
+                    </div>
+                    <div class="v_adapter_row">
+                        <button id="v_adapter_svc_reload" class="menu_button">
+                            <i class="fa-solid fa-rotate"></i><span>重载实现</span>
+                        </button>
+                    </div>
                 </div>
                 <div class="v_adapter_row">
                     <button id="v_adapter_open_panel" class="menu_button">
@@ -348,40 +402,36 @@ function toastError(msg) {
     }
 }
 
-// renderServiceState 按引导器返回的状态刷新抽屉里的状态行与按钮文案。
+// renderServiceState 按引导器的返回刷新抽屉。
+//
+// 协议服务属于可选能力（供同网络的第三方 NAI 客户端使用）。未部署引导器时整块隐藏：
+// 主出图通道不依赖它，展示「未安装」会让使用者误以为扩展不可用。
 function renderServiceState(st) {
-    const el = $('#v_adapter_svc_state');
+    const block = $('#v_adapter_svc_block');
+    const detail = $('#v_adapter_svc_detail');
     const toggle = $('#v_adapter_svc_toggle');
     const reload = $('#v_adapter_svc_reload');
-    if (!el.length) return;
+    if (!block.length) return;
 
-    if (!st) {
-        el.text('未检测到').removeClass('v_adapter_svc_on').addClass('v_adapter_svc_off');
-        toggle.prop('disabled', true).find('span').text('引导器未安装');
-        reload.prop('disabled', true);
+    if (!st || !st.installed) {
+        block.hide();
         return;
     }
 
+    block.show();
     toggle.prop('disabled', false);
     reload.prop('disabled', !st.running);
 
-    if (!st.installed) {
-        el.text('缺少服务端实现').removeClass('v_adapter_svc_on').addClass('v_adapter_svc_off');
-        toggle.prop('disabled', true).find('span').text('扩展不含 server-plugin');
-        return;
-    }
-
     if (st.running) {
-        el.text(st.listen ? `运行中 · ${st.listen}` : '运行中')
+        detail.text(st.listen ? `运行中 · ${st.listen}` : '运行中')
             .removeClass('v_adapter_svc_off').addClass('v_adapter_svc_on');
         toggle.find('span').text('停止协议服务');
         toggle.find('i').removeClass('fa-power-off').addClass('fa-stop');
-        return;
+    } else {
+        detail.text('已停止').removeClass('v_adapter_svc_on').addClass('v_adapter_svc_off');
+        toggle.find('span').text('启动协议服务');
+        toggle.find('i').removeClass('fa-stop').addClass('fa-power-off');
     }
-
-    el.text('已停止').removeClass('v_adapter_svc_on').addClass('v_adapter_svc_off');
-    toggle.find('span').text('启动协议服务');
-    toggle.find('i').removeClass('fa-stop').addClass('fa-power-off');
 }
 
 async function refreshServiceState() {

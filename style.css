@@ -31,6 +31,13 @@
     justify-content: center;
 }
 
+/* 协议服务区块默认隐藏：主出图通道不依赖它，未部署时不该出现「未安装」的观感。 */
+#v_adapter_drawer .v_adapter_svc_block {
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+}
+
 #v_adapter_drawer .v_adapter_svc {
     justify-content: space-between;
     padding: 2px 0;

@@ -56,7 +56,7 @@
 
 1. 打开酒馆 → 顶部「扩展」面板（三个方块图标）
 2. 点「安装扩展」
-3. 粘贴本仓库的 git 地址（`https://github.com/VVVVVILK/V.Adapter-ST.git`）→ 安装
+3. 粘贴本仓库的 git 地址（`https://github.com/<USERNAME>/V.Adapter.git`）→ 安装
 4. 完成后扩展列表出现「V.Adapter」
 
 **无法访问 GitHub 时（本地安装）**：解压发布包（`V.Adapter-1.1.4-src.zip`），将整个
