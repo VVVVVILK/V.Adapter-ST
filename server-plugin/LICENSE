@@ -1,0 +1,33 @@
+MIT License（附加非商用条款）
+
+Copyright (c) VILK
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+附加条款（随附源码即视为同意；以下条款优先于上方 MIT 条文中相抵触的部分）：
+
+1. 禁止商用：未经作者书面授权，不得出售、出租、集成到商业产品或服务，
+   也不得以广告、打赏、收费部署、代搭建等任何形式直接或间接牟利。
+2. 允许个人使用、学习研究、复制、修改（二次创作）与非商业目的的二次传播；
+   二次创作与再分发时必须保留原作者署名（VILK）及本许可声明。
+3. 本项目仅供学习和研究使用，请遵守所接入上游服务的条款，使用者自行承担风险。
+4. 本软件按「现状」提供，不附带任何明示或暗示的担保，
+   作者不对使用本程序产生的任何后果负责。

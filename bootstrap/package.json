@@ -1,0 +1,7 @@
+{
+    "name": "v-adapter-bootstrap",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "description": "V.Adapter 服务端引导器：在酒馆进程内按需加载扩展目录内的 NovelAI 协议适配实现"
+}

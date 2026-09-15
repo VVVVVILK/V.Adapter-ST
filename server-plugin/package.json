@@ -1,0 +1,7 @@
+{
+    "name": "v-adapter",
+    "version": "1.1.4",
+    "private": true,
+    "type": "module",
+    "description": "V.Adapter — NovelAI 协议适配服务（酒馆服务端插件形态）"
+}

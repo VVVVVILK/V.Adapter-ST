@@ -1,0 +1,99 @@
+/* V.Adapter 酒馆扩展样式（扩展抽屉 + 管理面板浮层） */
+
+/* ── 扩展抽屉（协议服务启停 + 名称 + 版本 + 打开面板）── */
+#v_adapter_drawer .v_adapter_version {
+    font-size: 11px;
+    color: var(--SmartThemeBodyColor);
+    opacity: 0.6;
+    margin-left: 6px;
+    font-weight: 400;
+}
+
+#v_adapter_drawer .v_adapter_content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 6px;
+}
+
+#v_adapter_drawer .v_adapter_row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* 抽屉内的按钮一律占满整行并居中，否则会被压缩成竖向排列。 */
+#v_adapter_drawer #v_adapter_open_panel,
+#v_adapter_drawer #v_adapter_svc_toggle,
+#v_adapter_drawer #v_adapter_svc_reload {
+    width: 100%;
+    justify-content: center;
+}
+
+#v_adapter_drawer .v_adapter_svc {
+    justify-content: space-between;
+    padding: 2px 0;
+}
+
+#v_adapter_drawer .v_adapter_svc_label {
+    font-size: 13px;
+    opacity: 0.85;
+}
+
+#v_adapter_drawer .v_adapter_svc_state {
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--SmartThemeBorderColor, rgba(127, 127, 127, 0.35));
+}
+
+#v_adapter_drawer .v_adapter_svc_state.v_adapter_svc_on {
+    color: #16a34a;
+    border-color: rgba(22, 163, 74, 0.5);
+}
+
+#v_adapter_drawer .v_adapter_svc_state.v_adapter_svc_off {
+    opacity: 0.65;
+}
+
+#v_adapter_drawer .menu_button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+/* ── 管理面板浮层 ── */
+#v_adapter_panel_overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px;
+}
+
+#v_adapter_panel_overlay .v_adapter_panel_chrome {
+    width: min(1240px, 100%);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+#v_adapter_panel_overlay .v_adapter_panel_chrome .menu_button {
+    color: #fff;
+}
+
+#v_adapter_panel_overlay #v_adapter_panel_iframe {
+    width: min(1240px, 100%);
+    height: 100%;
+    border: none;
+    border-radius: 12px;
+    background: #0f172a;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}

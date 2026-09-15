@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>V. · NovelAI 协议适配</title>
+<style>
+:root{
+  --bg:#0f172a; --fg:hsl(210 20% 96%); --card:hsl(222 24% 12%);
+  --primary:#10b981; --primary-fg:#03110a; --muted:hsl(222 15% 20%);
+  --muted-fg:hsl(217 12% 62%); --border:hsl(222 14% 22%);
+  --success:#22c55e; --warning:hsl(38 92% 50%); --danger:hsl(0 72% 58%); --info:hsl(200 80% 55%);
+  --radius:.625rem;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{color-scheme:dark}
+body{
+  background:
+    radial-gradient(60rem 30rem at 85% -10%, rgb(16 185 129 / .10), transparent 60%),
+    radial-gradient(50rem 26rem at -10% 110%, rgb(34 197 94 / .07), transparent 60%),
+    linear-gradient(180deg,#0f172a,#18181b);
+  color:var(--fg);font-size:14px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:ui-monospace,Consolas,"Cascadia Mono",monospace}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:hsl(222 12% 30% / .7);border-radius:999px}
+a{color:var(--primary)}
+.app-shell{display:flex;min-height:100vh}
+/* sidebar */
+.sidebar{width:250px;flex:none;display:flex;flex-direction:column;border-right:1px solid var(--border);background:hsl(222 24% 12% / .7);backdrop-filter:blur(16px);position:sticky;top:0;height:100vh}
+.sidebar-head{padding:22px 20px 18px;border-bottom:1px solid hsl(222 14% 22% / .6)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-mark{width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#10b981,#22c55e);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;box-shadow:0 8px 20px rgb(16 185 129 / .35);flex:none;font-family:ui-monospace,Consolas,monospace}
+.brand-name{font-size:16px;font-weight:700}
+.brand-sub{margin-top:8px;font-size:10.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-fg)}
+.sidebar-nav{flex:1;padding:14px 12px;display:flex;flex-direction:column;gap:4px;overflow-y:auto}
+.nav-btn{position:relative;width:100%;display:flex;align-items:center;gap:11px;padding:9px 12px;border:none;border-radius:8px;background:transparent;color:var(--muted-fg);font-size:13.5px;font-weight:500;cursor:pointer;text-align:left;font-family:inherit;transition:background .15s,color .15s}
+.nav-btn:hover{background:hsl(222 18% 17% / .7);color:var(--fg)}
+.nav-btn.active{background:hsl(152 65% 45% / .1);color:var(--fg)}
+.nav-btn.active:before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);height:20px;width:3px;border-radius:999px;background:var(--primary)}
+.sidebar-foot{padding:14px 16px;border-top:1px solid hsl(222 14% 22% / .6);display:flex;flex-direction:column;gap:10px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:600;color:var(--primary);background:hsl(160 84% 39% / .1);border:1px solid hsl(160 84% 39% / .2);padding:3px 9px;border-radius:999px}
+.pill.off{color:var(--danger);background:hsl(0 72% 58% / .1);border-color:hsl(0 72% 58% / .25)}
+.pdot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.foot-note{font-size:11px;color:var(--muted-fg);line-height:1.6}
+/* main */
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.content{max-width:1080px;width:100%;margin:0 auto;padding:26px 30px 56px}
+.topbar{display:none;height:56px;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--border);background:hsl(222 24% 12% / .7);backdrop-filter:blur(16px)}
+.topbar .tb-title{font-size:14px;font-weight:600}
+.hamb{background:none;border:1px solid var(--border);border-radius:8px;color:var(--fg);padding:7px 10px;cursor:pointer;display:inline-flex;align-items:center}
+.mask-mobile{position:fixed;inset:0;background:rgb(0 0 0 / .5);z-index:80;display:none}
+.mask-mobile.show{display:block}
+.page{display:none;flex-direction:column;gap:18px}
+.page.active{display:flex}
+.page-head h1{font-size:24px;font-weight:700;letter-spacing:-.02em}
+.page-head p{margin-top:6px;font-size:13px;color:var(--muted-fg);line-height:1.6}
+.card{background:var(--card);border:1px solid var(--border);border-radius:calc(var(--radius) + .125rem);overflow:hidden}
+.card-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.card-title{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+.card-desc{margin-top:3px;font-size:12px;color:var(--muted-fg)}
+.card-body{padding:18px 20px}
+.grid{display:grid;gap:16px}
+.grid.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:960px){
+  .grid.c2,.grid.c3{grid-template-columns:1fr}
+  .sidebar{position:fixed;inset:0 auto 0 0;z-index:90;transform:translateX(-100%);transition:transform .25s ease;box-shadow:0 0 48px rgb(0 0 0 / .5)}
+  .sidebar.open{transform:none}
+  .topbar{display:flex}
+  .content{padding:18px 14px 48px}
+}
+.kv{display:flex;flex-direction:column;gap:3px;padding:10px 0;border-bottom:1px dashed hsl(222 14% 22% / .7)}
+.kv:last-child{border-bottom:none}
+.kv .k{font-size:11px;color:var(--muted-fg);letter-spacing:.02em}
+.kv .v{font-size:13.5px;word-break:break-all}
+.stat{border:1px solid var(--border);background:hsl(222 26% 9% / .6);border-radius:9px;padding:12px 14px}
+.stat .v{font-size:20px;font-weight:700;line-height:1.2}
+.stat .k{margin-top:2px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-fg)}
+.stat.ok .v{color:var(--success)} .stat.bad .v{color:var(--danger)}
+label.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+label.field .lab{font-size:12.5px;font-weight:600}
+label.field .hint{font-size:11.5px;color:var(--muted-fg);line-height:1.55}
+input[type=text],input[type=password],select{width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:hsl(222 26% 9% / .8);color:var(--fg);font-size:13.5px;font-family:inherit;outline:none}
+input:focus,select:focus{border-color:hsl(152 65% 45% / .6);box-shadow:0 0 0 3px hsl(152 65% 45% / .12)}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:8px;border:1px solid var(--border);background:var(--muted);color:var(--fg);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:filter .15s,opacity .15s}
+.btn:hover{filter:brightness(1.15)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn.primary{background:linear-gradient(135deg,#10b981,#22c55e);border-color:transparent;color:var(--primary-fg)}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--danger);border-color:hsl(0 72% 58% / .35);background:hsl(0 72% 58% / .08)}
+.btn.sm{padding:6px 11px;font-size:12px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{padding:9px 10px;text-align:left;border-bottom:1px solid hsl(222 14% 22% / .6);vertical-align:top}
+th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-fg);font-weight:700;white-space:nowrap}
+td.prompt{max-width:260px;word-break:break-word}
+.tag{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
+.tag.ok{color:var(--success);background:hsl(142 71% 45% / .12);border:1px solid hsl(142 71% 45% / .25)}
+.tag.bad{color:var(--danger);background:hsl(0 72% 58% / .1);border:1px solid hsl(0 72% 58% / .25)}
+.tag.info{color:var(--info);background:hsl(200 80% 55% / .1);border:1px solid hsl(200 80% 55% / .25)}
+.code{display:block;padding:8px 10px;border-radius:8px;background:hsl(222 26% 8%);border:1px solid var(--border);font-size:12px;word-break:break-all}
+.muted{color:var(--muted-fg)}
+.err{color:var(--danger);font-size:12.5px;line-height:1.6;word-break:break-word}
+/* 作用范围提示：说明引擎配置的归属（本扩展 vs :8888 服务端插件） */
+.scope-note{margin:0 0 16px;padding:12px 15px;border-radius:10px;border:1px solid hsl(38 92% 50% / .35);background:hsl(38 92% 50% / .08);font-size:12.5px;line-height:1.75}
+.scope-note b{color:var(--warning)}
+.preview{margin-top:12px;max-width:100%;border-radius:10px;border:1px solid var(--border);display:none}
+/* toast */
+#toasts{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:9px;z-index:60}
+.toast{padding:11px 15px;border-radius:10px;border:1px solid var(--border);background:hsl(222 24% 12% / .97);font-size:13px;max-width:380px;box-shadow:0 12px 30px rgb(0 0 0 / .35);line-height:1.6}
+.toast.ok{border-color:hsl(142 71% 45% / .45)}
+.toast.bad{border-color:hsl(0 72% 58% / .45)}
+/* login mask */
+#mask{position:fixed;inset:0;background:hsl(222 30% 7% / .92);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:80;padding:20px}
+#mask.show{display:flex}
+.mask-card{width:100%;max-width:390px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:26px 24px;box-shadow:0 20px 60px rgb(0 0 0 / .5)}
+.mask-card h2{font-size:18px;margin-bottom:8px}
+.mask-card p{font-size:12.5px;color:var(--muted-fg);line-height:1.65;margin-bottom:16px}
+</style>
+</head>
+<body>
+
+<!-- 登录 / 首次设密 遮罩 -->
+<div id="mask">
+  <div class="mask-card">
+    <h2 id="mask-title">管理面板已锁定</h2>
+    <p id="mask-desc">请输入面板密码后继续。</p>
+    <label class="field">
+      <span class="lab">面板密码</span>
+      <input type="password" id="mask-pw" placeholder="请输入密码" autocomplete="current-password">
+    </label>
+    <div class="err" id="mask-err"></div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn primary" id="mask-submit">登录</button>
+      <button class="btn ghost" id="mask-skip" style="display:none">暂不设置，直接进入</button>
+    </div>
+  </div>
+</div>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-head">
+      <div class="brand">
+        <div class="brand-mark">V</div>
+        <div>
+          <div class="brand-name">V.</div>
+        </div>
+      </div>
+      <div class="brand-sub">NovelAI 协议适配服务 · VILK</div>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-btn active" data-page="overview">运行总览</button>
+      <button class="nav-btn" data-page="translate">角色转译</button>
+      <button class="nav-btn" data-page="logs">生成记录</button>
+      <button class="nav-btn" data-page="settings">设置中心</button>
+    </nav>
+    <div class="sidebar-foot">
+      <span class="pill" id="pill"><span class="pdot"></span><span id="pill-text">在线</span></span>
+      <div class="foot-note" id="foot-version">V.Adapter</div>
+      <button class="btn sm ghost" id="btn-logout">退出登录</button>
+    </div>
+  </aside>
+
+  <div class="mask-mobile" id="mask-mobile" onclick="toggleSidebar(false)"></div>
+
+  <main class="main">
+    <header class="topbar">
+      <button class="hamb" id="btn-menu" aria-label="打开菜单">
+        <svg width="18" height="14" viewBox="0 0 18 14" fill="none"><path d="M1 1h16M1 7h16M1 13h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <div class="tb-title">V.Adapter</div>
+    </header>
+    <div class="content">
+
+      <!-- 运行总览 -->
+      <section class="page active" id="page-overview">
+        <div class="page-head">
+          <h1>运行总览</h1>
+          <p>服务状态、当前生效配置（Key 脱敏）与最近生成记录。客户端通过 NovelAI 渠道调用本服务的 <span class="mono">/ai/</span> 端点。</p>
+        </div>
+
+        <div class="grid c3">
+          <div class="stat"><div class="v" id="st-version">-</div><div class="k">版本</div></div>
+          <div class="stat"><div class="v" id="st-uptime">-</div><div class="k">运行时长</div></div>
+          <div class="stat ok"><div class="v" id="st-success">0</div><div class="k">成功 / 失败</div></div>
+        </div>
+
+        <div class="grid c2">
+          <div class="card">
+            <div class="card-head"><div><div class="card-title">服务状态</div><div class="card-desc">监听地址与启动信息</div></div></div>
+            <div class="card-body">
+              <div class="kv"><span class="k">监听地址</span><span class="v mono" id="st-listen">-</span></div>
+              <div class="kv"><span class="k">启动时间</span><span class="v mono" id="st-started">-</span></div>
+              <div class="kv"><span class="k">NovelAI key 校验</span><span class="v" id="st-naikey">-</span></div>
+              <div class="kv"><span class="k">聊天生图兜底</span><span class="v" id="st-chatfallback">-</span></div>
+              <div class="kv"><span class="k">面板密码</span><span class="v" id="st-panelpw">-</span></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><div><div class="card-title">OpenAI 兼容 API</div><div class="card-desc">OpenAI 兼容生图 API（Key 脱敏显示）</div></div></div>
+            <div class="card-body">
+              <div class="kv"><span class="k">API 地址</span><span class="v mono" id="st-qwenurl">-</span></div>
+              <div class="kv"><span class="k">模型</span><span class="v mono" id="st-qwenmodel">-</span></div>
+              <div class="kv"><span class="k">API Key</span><span class="v mono" id="st-qwenkey">-</span></div>
+              <div class="kv"><span class="k">默认尺寸</span><span class="v mono" id="st-defaultsize">-</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div><div class="card-title">客户端对接信息</div><div class="card-desc">把下面地址填进 NovelAI 渠道（不要带 /ai 后缀，客户端会自动补）</div></div>
+          </div>
+          <div class="card-body">
+            <div class="kv"><span class="k">NovelAI 渠道 URL</span><span class="v"><code class="code mono" id="st-baseurl">-</code></span></div>
+            <div class="kv"><span class="k">NovelAI 渠道 Key</span><span class="v" id="st-naikey-hint">-</span></div>
+            <div class="kv"><span class="k">实际端点</span><span class="v mono muted">POST /ai/generate-image　·　GET /ai/user/subscription　·　模型名可任选（服务端忽略）</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div><div class="card-title">测试连接</div><div class="card-desc">实调一次上游生图，验证整条链路（不影响线上配置）</div></div>
+            <div class="row">
+              <button class="btn ghost sm" id="btn-test-advanced">高级选项</button>
+              <button class="btn primary" id="btn-test">测试连接</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="test-advanced" style="display:none">
+              <div class="grid c2">
+                <label class="field"><span class="lab">覆盖 API 地址（可选）</span><input type="text" id="t-url" placeholder="留空 = 用当前设置"></label>
+                <label class="field"><span class="lab">覆盖模型（可选）</span><input type="text" id="t-model" placeholder="留空 = 用当前设置"></label>
+                <label class="field"><span class="lab">覆盖 Key（可选）</span><input type="password" id="t-key" placeholder="留空 = 用当前设置"></label>
+                <label class="field"><span class="lab">覆盖尺寸（可选）</span><input type="text" id="t-size" placeholder="如 1024x1024"></label>
+              </div>
+            </div>
+            <div id="test-result" class="muted">尚未测试。</div>
+            <img id="test-preview" class="preview" alt="测试生成结果">
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">最近生成记录</div><div class="card-desc">最新 5 条；完整记录见「生成记录」页</div></div>
+            <button class="btn ghost sm" id="btn-refresh-overview">刷新</button></div>
+          <div class="card-body" style="padding:0">
+            <table><thead><tr><th>时间</th><th>类型</th><th>尺寸</th><th>链路</th><th>耗时</th><th>结果</th><th>提示词</th></tr></thead>
+            <tbody id="recent-rows"><tr><td colspan="7" class="muted" style="padding:14px 10px">暂无记录</td></tr></tbody></table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 设置中心 -->
+      <section class="page" id="page-settings">
+        <div class="page-head">
+          <h1>设置中心</h1>
+          <p>保存后立即热生效并写入 <span class="mono">data/settings.json</span>（重启不丢失）。Key 输入框留空 = 不修改；清除请点对应「清除」按钮。</p>
+        </div>
+
+        <div class="scope-note">
+          <b>作用范围：</b>本页配置只对<b>本扩展</b>的 <span class="mono">/vgen</span> 命令与角色转译出图生效。
+          经 <span class="mono">:8888</span> 端口出图的客户端（V.Canvas、第三方 NAI 插件）读取的是
+          <b>服务端插件</b>那一份配置（<span class="mono">&lt;SillyTavern&gt;\plugins\V.Adapter\data\</span>）。
+          两条管道各有一份配置，需分别设置。
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">OpenAI 兼容 API</div><div class="card-desc">OpenAI 兼容生图 API</div></div></div>
+          <div class="card-body">
+            <label class="field"><span class="lab">API 地址</span>
+              <input type="text" id="s-qwen-url" placeholder="http://127.0.0.1:4000/v1">
+              <span class="hint">OpenAI 兼容生图接口的 base url，通常带 /v1 结尾。</span></label>
+            <label class="field"><span class="lab">API Key</span>
+              <input type="password" id="s-qwen-key" placeholder="（未设置）" autocomplete="new-password">
+              <span class="hint" id="hint-qwen-key">留空 = 不修改当前 Key。</span></label>
+            <label class="field"><span class="lab">模型名</span>
+              <input type="text" id="s-qwen-model" placeholder="qwen3.8-max"></label>
+            <label class="field"><span class="lab">默认尺寸</span>
+              <input type="text" id="s-default-size" placeholder="1024x1024">
+              <span class="hint">客户端没传尺寸、或上游拒绝其尺寸时的兜底，格式「宽x高」。</span></label>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">NovelAI 渠道与兼容</div><div class="card-desc">客户端对接参数与降级策略</div></div></div>
+          <div class="card-body">
+            <label class="field"><span class="lab">NovelAI 接入 Key</span>
+              <input type="password" id="s-nai-key" placeholder="（不校验）" autocomplete="new-password">
+              <span class="hint" id="hint-nai-key">留空 = 不修改当前 Key。此值即客户端 NovelAI 渠道要填的 Key；清空后则任意 key 均可调用。</span></label>
+            <label class="field"><span class="lab">生图链路（按上游模型类型选择）</span>
+              <select id="s-chat-fallback">
+                <option value="auto">auto — 先试标准生图接口，失败自动转聊天接口（推荐；两类上游都能用）</option>
+                <option value="off">off — 只走标准生图接口，失败不兜底。适用于正经 OpenAI 生图上游（生图模型）</option>
+                <option value="openai">openai — 只走标准 OpenAI 生图接口，失败即报错（效果与 off 相同）</option>
+                <option value="chat_only">chat_only — 只走聊天接口生图。仅适用于「在聊天里画图」的模型；生图模型走此路会返回 400</option>
+              </select>
+              <span class="hint">怎么选：上游模型是<b>生图模型</b>（qwen-image-2.0、dall-e-3 这类，走 /images/generations，出图约 6 秒/张）→ 选 auto / off / openai；上游是<b>聊天画图模型</b>（反代的 qwen3.8-max 这类，标准接口稳定 500，只能靠聊天出图，约 30~60 秒/张）→ 选 auto 或 chat_only。</span></label>
+            <label class="field"><span class="lab">监听地址</span>
+              <input type="text" id="s-listen" placeholder="0.0.0.0:8888">
+              <span class="hint">修改后需重启服务生效（服务器部署填 0.0.0.0:端口）。</span></label>
+            <div class="row">
+              <button class="btn primary" id="btn-save">保存设置</button>
+              <button class="btn danger sm" id="btn-clear-qwen">清除 API 密钥</button>
+              <button class="btn danger sm" id="btn-clear-nai">清除接入密钥</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">面板密码</div><div class="card-desc">首次可免密进入；设置后管理端点需登录（会话 24h）</div></div></div>
+          <div class="card-body">
+            <label class="field"><span class="lab">新密码</span>
+              <input type="password" id="s-panel-pw" placeholder="至少 4 位" autocomplete="new-password">
+              <span class="hint" id="hint-panel-pw">未设置密码时，任何人访问本面板都能改配置；公网部署请务必设置。</span></label>
+            <div class="row">
+              <button class="btn" id="btn-set-pw">设置 / 修改密码</button>
+              <button class="btn danger sm" id="btn-close-pw">关闭面板密码</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 角色转译 -->
+      <section class="page" id="page-translate">
+        <div class="page-head">
+          <h1>角色转译</h1>
+          <p>输入一句角色或场景描述，直接出图。转译出来的提示词会一并展示，可复制走或微调后再出。</p>
+        </div>
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">输入描述</div><div class="card-desc">支持自然语言，如「哆啦A梦里面的野比玉子」</div></div></div>
+          <div class="card-body">
+            <textarea id="tr-text" rows="4" placeholder="例如：哆啦A梦里面的野比玉子" style="width:100%;background:hsl(222 18% 14%);color:var(--fg);border:1px solid hsl(222 18% 22%);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:13.5px;resize:vertical"></textarea>
+            <div class="row" style="margin-top:10px;flex-wrap:wrap;align-items:center;gap:10px">
+              <button class="btn primary" id="btn-translate-gen">转译并出图</button>
+              <button class="btn ghost" id="btn-translate">仅转译文字</button>
+              <button class="btn ghost sm" id="btn-copy-translate">复制文本</button>
+            </div>
+            <div class="row" style="margin-top:10px;flex-wrap:wrap;align-items:center;gap:14px">
+              <label class="row" style="gap:6px;font-size:12.5px;align-items:center;width:auto">
+                <span class="muted">尺寸</span>
+                <select id="tr-size" style="width:auto;min-width:190px">
+                  <option value="">自动（用转译推荐尺寸）</option>
+                  <option value="832x1216">832x1216 · 竖构图</option>
+                  <option value="1216x832">1216x832 · 横构图</option>
+                  <option value="1024x1024">1024x1024 · 方图</option>
+                  <option value="1024x1536">1024x1536 · 大竖图</option>
+                  <option value="1536x1024">1536x1024 · 大横图</option>
+                </select>
+              </label>
+            </div>
+            <div id="tr-image-wrap" style="display:none;margin-top:16px">
+              <img id="tr-image" alt="角色转译出图结果" style="display:block;max-width:100%;border-radius:10px;border:1px solid var(--border)">
+              <div class="row" style="margin-top:10px;flex-wrap:wrap;align-items:center;gap:10px">
+                <a class="btn ghost sm" id="btn-dl-image" download="translate.png">下载图片</a>
+                <button class="btn ghost sm" id="btn-regen">再出一张（同提示词）</button>
+                <span class="muted" id="tr-image-info" style="font-size:12.5px"></span>
+              </div>
+            </div>
+            <div id="tr-result" style="margin-top:14px"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 生成记录 -->
+      <section class="page" id="page-logs">
+        <div class="page-head">
+          <h1>生成记录</h1>
+          <p>最近 200 条生成/测试记录（内存保存，重启清空）。</p>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div><div class="card-title">记录</div><div class="card-desc" id="logs-count">-</div></div>
+            <div class="row">
+              <label class="row" style="gap:6px;font-size:12.5px"><input type="checkbox" id="logs-auto" style="width:auto"> 自动刷新</label>
+              <button class="btn ghost sm" id="btn-refresh-logs">刷新</button>
+              <button class="btn danger sm" id="btn-clear-logs">清空</button>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0">
+            <table><thead><tr><th>时间</th><th>类型</th><th>尺寸</th><th>链路</th><th>耗时</th><th>结果</th><th>提示词</th><th>错误</th></tr></thead>
+            <tbody id="log-rows"><tr><td colspan="8" class="muted" style="padding:14px 10px">暂无记录</td></tr></tbody></table>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<div id="toasts"></div>
+
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+let AUTH = { setup_required: false, locked: false };
+let STATUS = {};
+
+/* ── 通用请求 ── */
+async function api(path, opts = {}) {
+  // 扩展版桥接：面板 UI 与功能 1:1 保留，仅把 HTTP 层换成扩展内置虚拟端点
+  // （window.parent.__V_ADAPTER_API__ 由扩展注入，返回 {ok, status, data}）。
+  let parsed = null;
+  if (opts.body) {
+    try { parsed = JSON.parse(opts.body); } catch (e) { parsed = null; }
+  }
+  return await window.parent.__V_ADAPTER_API__(path, (opts.method || 'GET'), parsed);
+}
+
+function toast(msg, kind = 'ok') {
+  const el = document.createElement('div');
+  el.className = 'toast ' + kind;
+  el.innerHTML = esc(msg);
+  $('#toasts').appendChild(el);
+  setTimeout(() => el.remove(), 4200);
+}
+
+function humanUptime(sec) {
+  sec = Number(sec) || 0;
+  const d = Math.floor(sec / 86400), h = Math.floor(sec % 86400 / 3600), m = Math.floor(sec % 3600 / 60);
+  if (d > 0) return d + '天' + h + '小时';
+  if (h > 0) return h + '小时' + m + '分';
+  if (m > 0) return m + '分' + (sec % 60) + '秒';
+  return sec + '秒';
+}
+
+/* ── 登录 / 首次设密 ── */
+function showMask(mode) {
+  const mask = $('#mask');
+  mask.classList.add('show');
+  mask.dataset.mode = mode;
+  $('#mask-err').textContent = '';
+  $('#mask-pw').value = '';
+  if (mode === 'setup') {
+    $('#mask-title').textContent = '首次使用：建议设置面板密码';
+    $('#mask-desc').textContent = '当前面板无密码，任何能访问本服务的人都能修改配置。可先跳过，稍后在「设置中心」设置。';
+    $('#mask-submit').textContent = '设置密码并进入';
+    $('#mask-skip').style.display = 'inline-flex';
+  } else {
+    $('#mask-title').textContent = '管理面板已锁定';
+    $('#mask-desc').textContent = '请输入面板密码后继续。';
+    $('#mask-submit').textContent = '登录';
+    $('#mask-skip').style.display = 'none';
+  }
+  setTimeout(() => $('#mask-pw').focus(), 50);
+}
+function hideMask() { $('#mask').classList.remove('show'); }
+
+async function refreshAuth() {
+  const r = await api('/admin/auth/status');
+  if (!r.ok || !r.data) { showMask('login'); return false; }
+  AUTH = { setup_required: !!r.data.setup_required, locked: !!r.data.locked };
+  if (AUTH.setup_required) { showMask('setup'); return false; }
+  if (AUTH.locked) { showMask('login'); return false; }
+  hideMask();
+  return true;
+}
+
+$('#mask-submit').onclick = async () => {
+  const pw = $('#mask-pw').value;
+  const mode = $('#mask').dataset.mode;
+  if (mode === 'setup') {
+    const r = await api('/admin/auth/setup', { method: 'POST', body: JSON.stringify({ password: pw }) });
+    if (!r.ok || !r.data || !r.data.success) { $('#mask-err').textContent = (r.data && r.data.error) || '设置失败'; return; }
+    toast('面板密码已设置');
+  } else {
+    const r = await api('/admin/auth/login', { method: 'POST', body: JSON.stringify({ password: pw }) });
+    if (!r.ok || !r.data || !r.data.success) { $('#mask-err').textContent = (r.data && r.data.error) || '登录失败'; return; }
+  }
+  hideMask();
+  await loadAll();
+};
+$('#mask-pw').addEventListener('keydown', e => { if (e.key === 'Enter') $('#mask-submit').click(); });
+$('#mask-skip').onclick = () => { hideMask(); loadAll(); };
+
+$('#btn-logout').onclick = async () => {
+  await api('/admin/auth/logout', { method: 'POST' });
+  toast('已退出登录');
+  const ok = await refreshAuth();
+  if (!ok) { /* 遮罩已显示 */ }
+};
+
+/* ── 页面切换 ── */
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b === btn));
+    const name = btn.dataset.page;
+    document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + name));
+    if (name === 'logs') loadLogs();
+    toggleSidebar(false);
+  };
+});
+
+/* 移动端：侧边栏抽屉 */
+function toggleSidebar(open) {
+  document.querySelector('.sidebar').classList.toggle('open', open);
+  $('#mask-mobile').classList.toggle('show', open);
+}
+$('#btn-menu').onclick = () => toggleSidebar(true);
+
+/* ── 状态 ── */
+async function loadStatus() {
+  const r = await api('/admin/status');
+  if (!r.ok || !r.data) return;
+  STATUS = r.data;
+  const s = r.data.settings || {};
+  $('#st-version').textContent = r.data.version || '-';
+  $('#st-uptime').textContent = humanUptime(r.data.uptime_seconds);
+  const c = r.data.counters || {};
+  $('#st-success').textContent = (c.success || 0) + ' / ' + (c.fail || 0);
+  $('#st-listen').textContent = r.data.listen || '-';
+  $('#st-started').textContent = r.data.started_at || '-';
+  $('#st-naikey').textContent = s.nai_key_required ? ('开启（' + (s.nai_key_masked || '') + '）') : '关闭（任意 key 可用）';
+  $('#st-chatfallback').textContent = ({ auto: 'auto（失败自动转聊天）', off: 'off（仅标准接口）', chat_only: 'chat_only（仅聊天接口）', openai: 'openai（标准 OpenAI 接口，无兜底）' })[s.chat_fallback] || s.chat_fallback;
+  $('#st-panelpw').textContent = AUTH.setup_required ? '未设置（建议设置）' : '已设置';
+  $('#st-qwenurl').textContent = s.qwen_url || '（未配置）';
+  $('#st-qwenmodel').textContent = s.qwen_model || '-';
+  $('#st-qwenkey').textContent = s.qwen_key_set ? (s.qwen_key_masked || '已设置') : '（未设置）';
+  $('#st-defaultsize').textContent = s.default_size || '-';
+  const base = '（内置扩展 · 无需配置地址）';
+  $('#st-baseurl').textContent = base;
+  $('#st-naikey-hint').innerHTML = s.nai_key_required
+    ? ('填服务端接入密钥（当前 <span class="mono">' + esc(s.nai_key_masked || '') + '</span>；忘记可到「设置中心」重设一个新的）')
+    : '服务端未校验 key，客户端填任意非空 key 即可';
+  $('#foot-version').textContent = 'V.Adapter ' + (r.data.version || '');
+  $('#pill-text').textContent = '在线';
+  renderRecent(r.data.recent || []);
+}
+
+function renderRecent(rows) {
+  if (!rows.length) {
+    $('#recent-rows').innerHTML = '<tr><td colspan="7" class="muted" style="padding:14px 10px">暂无记录</td></tr>';
+    return;
+  }
+  $('#recent-rows').innerHTML = rows.map(r => `<tr>
+    <td class="mono">${esc(r.time)}</td>
+    <td>${esc(r.kind)}</td>
+    <td class="mono">${esc(r.size)}</td>
+    <td>${esc(r.via || '-')}</td>
+    <td class="mono">${esc(r.latency_ms)}ms</td>
+    <td>${r.ok ? '<span class="tag ok">成功</span>' : '<span class="tag bad">失败</span>'}</td>
+    <td class="prompt">${esc(r.prompt || '')}</td>
+  </tr>`).join('');
+}
+
+/* ── 设置 ── */
+async function loadSettings() {
+  const r = await api('/admin/settings');
+  if (!r.ok || !r.data || !r.data.settings) return;
+  const s = r.data.settings;
+  $('#s-qwen-url').value = s.qwen_url || '';
+  $('#s-qwen-model').value = s.qwen_model || '';
+  $('#s-default-size').value = s.default_size || '';
+  $('#s-listen').value = s.listen || '';
+  $('#s-chat-fallback').value = s.chat_fallback || 'auto';
+  $('#s-qwen-key').value = '';
+  $('#s-nai-key').value = '';
+  $('#s-qwen-key').placeholder = s.qwen_key_set ? (s.qwen_key_masked + '（留空不改）') : '（未设置）';
+  $('#s-nai-key').placeholder = s.nai_key_required ? (s.nai_key_masked + '（留空不改）') : '（不校验）';
+  $('#hint-qwen-key').textContent = s.qwen_key_set
+    ? ('当前 Key：' + s.qwen_key_masked + '；要更换请输入新值，留空 = 不修改。')
+    : '当前未设置。';
+  $('#hint-nai-key').textContent = s.nai_key_required
+    ? ('当前 Key：' + s.nai_key_masked + '；客户端渠道须填同一值，修改后请同步更新客户端。')
+    : '当前不校验（客户端填任意非空 key 均可）。';
+  $('#hint-panel-pw').textContent = AUTH.setup_required
+    ? '未设置密码：任何人访问本面板都能改配置；公网部署请务必设置。'
+    : '已设置密码；修改后当前会话仍有效（24h）。';
+}
+
+async function saveSettings() {
+  const payload = {
+    qwen_url: $('#s-qwen-url').value.trim(),
+    qwen_model: $('#s-qwen-model').value.trim(),
+    default_size: $('#s-default-size').value.trim(),
+    listen: $('#s-listen').value.trim(),
+    chat_fallback: $('#s-chat-fallback').value,
+  };
+  const qk = $('#s-qwen-key').value.trim();
+  const nk = $('#s-nai-key').value.trim();
+  if (qk) payload.qwen_key = qk;
+  if (nk) payload.nai_key = nk;
+
+  const btn = $('#btn-save');
+  btn.disabled = true; btn.textContent = '保存中…';
+  const r = await api('/admin/settings', { method: 'POST', body: JSON.stringify(payload) });
+  btn.disabled = false; btn.textContent = '保存设置';
+  if (!r.ok || !r.data || !r.data.success) {
+    toast('保存失败：' + ((r.data && r.data.error) || ('HTTP ' + r.status)), 'bad');
+    return;
+  }
+  const changed = r.data.changed || [];
+  const notes = r.data.notes || [];
+  toast('已保存并热生效：' + (changed.length ? changed.join('、') : '（内容无变化）'));
+  notes.forEach(n => toast(n, 'bad'));
+  await loadSettings();
+  await loadStatus();
+}
+
+/* ── 测试连接 ── */
+async function testConnection() {
+  const btn = $('#btn-test');
+  btn.disabled = true; btn.textContent = '生成中…（最长 300s）';
+  $('#test-result').innerHTML = '<span class="muted">正在调用上游生图，请稍候…</span>';
+  $('#test-preview').style.display = 'none';
+  const payload = {
+    url: $('#t-url').value.trim(),
+    key: $('#t-key').value.trim(),
+    model: $('#t-model').value.trim(),
+    size: $('#t-size').value.trim(),
+  };
+  Object.keys(payload).forEach(k => { if (!payload[k]) delete payload[k]; });
+  const r = await api('/admin/test', { method: 'POST', body: JSON.stringify(payload) });
+  btn.disabled = false; btn.textContent = '测试连接';
+  if (!r.ok || !r.data || !r.data.success) {
+    const msg = (r.data && (r.data.error || r.data.message)) || ('HTTP ' + r.status);
+    $('#test-result').innerHTML = '<span class="err">' + esc(msg) + '</span>';
+    toast('测试连接失败', 'bad');
+    return;
+  }
+  const d = r.data;
+  $('#test-result').innerHTML = '<b>生成成功</b>：耗时 ' + esc(d.latency_ms) + 'ms，链路 <span class="tag info">' + esc(d.via) + '</span>，尺寸 ' + esc(d.size) + '，模型 ' + esc(d.model) + '，' + Math.round((d.bytes || 0) / 1024) + 'KB';
+  if (d.preview) {
+    const img = $('#test-preview');
+    img.src = d.preview;
+    img.style.display = 'block';
+  }
+  toast('测试连接成功（' + d.latency_ms + 'ms，' + d.via + '）');
+  loadStatus(); loadLogs();
+}
+
+/* ── 记录 ── */
+async function loadLogs() {
+  const r = await api('/admin/logs?limit=200');
+  if (!r.ok || !r.data) return;
+  const rows = r.data.logs || [];
+  const c = r.data.counters || {};
+  $('#logs-count').textContent = '共 ' + (c.total || 0) + ' 次（成功 ' + (c.success || 0) + ' / 失败 ' + (c.fail || 0) + '），保留上限 ' + (r.data.cap || 200) + ' 条';
+  if (!rows.length) {
+    $('#log-rows').innerHTML = '<tr><td colspan="8" class="muted" style="padding:14px 10px">暂无记录</td></tr>';
+    return;
+  }
+  $('#log-rows').innerHTML = rows.map(r0 => `<tr>
+    <td class="mono">${esc(r0.time)}</td>
+    <td>${esc(r0.kind)}</td>
+    <td class="mono">${esc(r0.size)}</td>
+    <td>${esc(r0.via || '-')}</td>
+    <td class="mono">${esc(r0.latency_ms)}ms</td>
+    <td>${r0.ok ? '<span class="tag ok">成功</span>' : '<span class="tag bad">失败</span>'}</td>
+    <td class="prompt">${esc(r0.prompt || '')}</td>
+    <td class="prompt err">${esc(r0.error || '')}</td>
+  </tr>`).join('');
+}
+
+/* ── 绑定 ── */
+$('#btn-save').onclick = saveSettings;
+$('#btn-test').onclick = testConnection;
+$('#btn-test-advanced').onclick = () => {
+  const el = $('#test-advanced');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+};
+$('#btn-refresh-overview').onclick = () => { loadStatus(); toast('已刷新'); };
+$('#btn-refresh-logs').onclick = () => loadLogs();
+$('#btn-clear-logs').onclick = async () => {
+  if (!confirm('确定清空生成记录？')) return;
+  await api('/admin/logs', { method: 'DELETE' });
+  toast('记录已清空'); loadLogs(); loadStatus();
+};
+$('#btn-clear-qwen').onclick = () => clearKey('qwen_key');
+$('#btn-clear-nai').onclick = () => clearKey('nai_key');
+
+/* ── 角色转译（直接出图） ── */
+function trRenderText(d) {
+  const item = (label, val) => val
+    ? '<div style="margin-bottom:10px"><div class="muted" style="font-size:12px;margin-bottom:2px">' + label + '</div><div class="mono" style="white-space:pre-wrap;word-break:break-all;background:hsl(222 18% 14%);border-radius:6px;padding:8px 10px">' + esc(val) + '</div></div>'
+    : '';
+  return item('总提示词', d.prompt) +
+    item('角色描述', d.character_prompt) +
+    item('场景与画风', d.main_prompt) +
+    item('负面词', d.negative_prompt);
+}
+
+function trShowImage(d) {
+  const img = $('#tr-image');
+  img.src = d.preview;
+  $('#tr-image-wrap').style.display = 'block';
+  const a = $('#btn-dl-image');
+  a.href = d.preview;
+  a.setAttribute('download', 'translate.' + (d.ext || 'png'));
+  $('#tr-image-info').textContent = '耗时 ' + d.latency_ms + 'ms · 链路 ' + (d.via || '-') +
+    ' · 尺寸 ' + (d.used_size || '-') + ' · ' + Math.round((d.bytes || 0) / 1024) + 'KB';
+}
+
+async function runTranslate(generate) {
+  const text = $('#tr-text').value.trim();
+  if (!text) { toast('请输入角色或场景描述', 'bad'); return; }
+  const btnGen = $('#btn-translate-gen'), btnOnly = $('#btn-translate'), box = $('#tr-result');
+  const labelGen = btnGen.textContent;
+  btnGen.disabled = true; btnOnly.disabled = true;
+  if (generate) btnGen.textContent = '转译并出图中…（最长 320s）';
+  box.innerHTML = '<span class="muted">' + (generate ? '正在转译并调用上游出图，请稍候…' : '正在转译，请稍候…') + '</span>';
+  const payload = { text: text, generate: generate };
+  const size = $('#tr-size').value;
+  if (size) payload.size = size;
+  const r = await api('/admin/translate', { method: 'POST', body: JSON.stringify(payload) });
+  btnGen.disabled = false; btnOnly.disabled = false; btnGen.textContent = labelGen;
+  if (!r.ok || !r.data || !r.data.success) {
+    box.innerHTML = '<span class="err">' + esc((r.data && (r.data.error || r.data.message)) || ('HTTP ' + r.status)) + '</span>';
+    toast(generate ? '转译并出图失败' : '转译失败', 'bad');
+    return;
+  }
+  const d = r.data.data || {};
+  window.__tr = { data: d, used_size: r.data.used_size || '' };
+  box.innerHTML = trRenderText(d) +
+    '<div class="muted" style="font-size:12px">推荐尺寸：' + esc((d.width || '') + 'x' + (d.height || '')) +
+    ' · 步数 ' + esc(d.steps || '-') + ' · CFG ' + esc(d.cfg_scale || '-') + '</div>';
+  if (r.data.preview) {
+    trShowImage(r.data);
+    toast('出图完成（' + r.data.latency_ms + 'ms，' + (r.data.via || '-') + '）');
+    loadStatus(); loadLogs();
+  } else if (generate && r.data.image_error) {
+    box.innerHTML += '<div class="err" style="margin-top:8px">转译成功，但出图失败：' + esc(r.data.image_error) + '</div>';
+    toast('转译成功，出图失败', 'bad');
+  } else {
+    toast('转译完成');
+  }
+}
+$('#btn-translate-gen').onclick = () => runTranslate(true);
+$('#btn-translate').onclick = () => runTranslate(false);
+
+// 再出一张：沿用上一次的提示词，不重新转译（避免画风漂移）
+$('#btn-regen').onclick = async () => {
+  const prev = window.__tr;
+  if (!prev || !prev.data || !prev.data.prompt) { toast('请先转译一次', 'bad'); return; }
+  const btn = $('#btn-regen');
+  btn.disabled = true; btn.textContent = '生成中…';
+  const payload = {
+    prompt: prev.data.prompt,
+    negative: prev.data.negative_prompt,
+    generate: true,
+    style: prev.style,
+  };
+  const size = $('#tr-size').value || prev.used_size || '';
+  if (size) payload.size = size;
+  const r = await api('/admin/translate', { method: 'POST', body: JSON.stringify(payload) });
+  btn.disabled = false; btn.textContent = '再出一张（同提示词）';
+  if (!r.ok || !r.data || !r.data.preview) {
+    const msg = (r.data && (r.data.image_error || r.data.error || r.data.message)) || ('HTTP ' + r.status);
+    toast('出图失败：' + msg, 'bad');
+    return;
+  }
+  trShowImage(r.data);
+  window.__tr.used_size = r.data.used_size || size;
+  toast('已再出一张（' + r.data.latency_ms + 'ms）');
+  loadStatus(); loadLogs();
+};
+
+$('#btn-copy-translate').onclick = () => {
+  if (!window.__tr) { toast('还没有转译结果', 'bad'); return; }
+  const d = window.__tr.data;
+  const text = ['总提示词：', d.prompt, '', '角色描述：', d.character_prompt, '', '场景与画风：', d.main_prompt, '', '负面词：', d.negative_prompt, '', '推荐尺寸：' + d.width + 'x' + d.height + '，步数：' + d.steps].join('\n');
+  navigator.clipboard.writeText(text).then(() => toast('已复制到剪贴板'), () => toast('复制失败，请手动选择复制', 'bad'));
+};
+
+async function clearKey(name) {
+  const label = name === 'nai_key' ? '接入密钥' : 'API 密钥';
+  if (!confirm('确定清除' + label + '？' + (name === 'nai_key' ? '清除后客户端填任意 key 均可调用。' : '清除后请求会用占位符。'))) return;
+  const r = await api('/admin/settings', { method: 'POST', body: JSON.stringify({ clear: [name] }) });
+  if (!r.ok || !r.data || !r.data.success) { toast('清除失败', 'bad'); return; }
+  toast(name + ' 已清除'); loadSettings(); loadStatus();
+}
+$('#btn-set-pw').onclick = async () => {
+  const pw = $('#s-panel-pw').value;
+  const r = await api('/admin/auth/setup', { method: 'POST', body: JSON.stringify({ password: pw }) });
+  if (!r.ok || !r.data || !r.data.success) { toast('设置失败：' + ((r.data && r.data.error) || ''), 'bad'); return; }
+  $('#s-panel-pw').value = '';
+  AUTH.setup_required = false;
+  toast('面板密码已设置'); loadStatus();
+};
+$('#btn-close-pw').onclick = async () => {
+  if (!confirm('确定关闭面板密码？关闭后任何人访问本面板都能改配置。')) return;
+  const r = await api('/admin/auth/setup', { method: 'POST', body: JSON.stringify({ password: '' }) });
+  if (!r.ok || !r.data || !r.data.success) { toast('关闭失败：' + ((r.data && r.data.error) || ''), 'bad'); return; }
+  AUTH.setup_required = true;
+  toast('面板密码已关闭'); loadStatus(); loadSettings();
+};
+
+/* ── 轮询与启动 ── */
+async function loadAll() { await Promise.all([loadStatus(), loadSettings()]); loadLogs(); }
+
+setInterval(() => {
+  if ($('#mask').classList.contains('show')) return;
+  if ($('#page-overview').classList.contains('active')) loadStatus();
+  if ($('#page-logs').classList.contains('active') && $('#logs-auto').checked) loadLogs();
+}, 10000);
+
+(async function boot() {
+  const ok = await refreshAuth();
+  if (ok) await loadAll();
+})();
+</script>
+</body>
+</html>
