@@ -107,6 +107,9 @@ td.prompt{max-width:260px;word-break:break-word}
 .scope-note{margin:0 0 16px;padding:12px 15px;border-radius:10px;border:1px solid hsl(38 92% 50% / .35);background:hsl(38 92% 50% / .08);font-size:12.5px;line-height:1.75}
 .scope-note b{color:var(--warning)}
 .preview{margin-top:12px;max-width:100%;border-radius:10px;border:1px solid var(--border);display:none}
+/* 图片加载失败的可见占位：附原始地址，便于判断是路径问题还是文件问题 */
+.img-broken{display:block;margin-top:12px;padding:12px 14px;font-size:12px;line-height:1.65;color:var(--danger);background:hsl(0 72% 58% / .08);border:1px dashed hsl(0 72% 58% / .35);border-radius:10px;word-break:break-all}
+.img-broken b{display:block;margin-bottom:4px;font-size:13px}
 /* toast */
 #toasts{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:9px;z-index:60}
 .toast{padding:11px 15px;border-radius:10px;border:1px solid var(--border);background:hsl(222 24% 12% / .97);font-size:13px;max-width:380px;box-shadow:0 12px 30px rgb(0 0 0 / .35);line-height:1.6}
@@ -397,6 +400,35 @@ td.prompt{max-width:260px;word-break:break-word}
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+/* ── 图片地址解析 ──
+   本页位于 /scripts/extensions/third-party/<扩展>/panel.html，而酒馆返回的图片地址是
+   根路径（/user/images/…）。此处统一按酒馆根解析成绝对地址，避免相对写法被解析到扩展目录下。 */
+const APP_BASE = (() => {
+  try { if (window.parent && window.parent !== window && window.parent.location) return window.parent.location.href; } catch (e) { /* 跨域忽略 */ }
+  try { if (window.opener && window.opener.location) return window.opener.location.href; } catch (e) { /* 跨域忽略 */ }
+  return location.href.replace(/scripts\/extensions\/.*$/, '');
+})();
+
+function imgUrl(u) {
+  const s = String(u ?? '').trim();
+  if (!s) return '';
+  if (/^(https?:|data:|blob:)/i.test(s)) return s;
+  try { return new URL(s.replace(/^\.\//, ''), APP_BASE).href; } catch (e) { return s; }
+}
+
+// 图片加载失败时把原因显示出来，而不是留一个空白框
+function showImgError(el, url) {
+  if (!el) return;
+  el.style.display = 'none';
+  let tip = el.nextElementSibling;
+  if (!tip || !tip.classList || !tip.classList.contains('img-broken')) {
+    tip = document.createElement('div');
+    tip.className = 'img-broken';
+    el.insertAdjacentElement('afterend', tip);
+  }
+  tip.innerHTML = '<b>图片未能加载</b><br>' + esc(url || '');
+}
+
 let AUTH = { setup_required: false, locked: false };
 let STATUS = {};
 
@@ -638,8 +670,10 @@ async function testConnection() {
   $('#test-result').innerHTML = '<b>生成成功</b>：耗时 ' + esc(d.latency_ms) + 'ms，链路 <span class="tag info">' + esc(d.via) + '</span>，尺寸 ' + esc(d.size) + '，模型 ' + esc(d.model) + '，' + Math.round((d.bytes || 0) / 1024) + 'KB';
   if (d.preview) {
     const img = $('#test-preview');
-    img.src = d.preview;
-    img.style.display = 'block';
+    const u = imgUrl(d.preview);
+    img.onerror = () => showImgError(img, u);
+    img.onload = () => { img.style.display = 'block'; };
+    img.src = u;
   }
   toast('测试连接成功（' + d.latency_ms + 'ms，' + d.via + '）');
   loadStatus(); loadLogs();
@@ -698,10 +732,12 @@ function trRenderText(d) {
 
 function trShowImage(d) {
   const img = $('#tr-image');
-  img.src = d.preview;
+  const u = imgUrl(d.preview);
+  img.onerror = () => showImgError(img, u);
+  img.src = u;
   $('#tr-image-wrap').style.display = 'block';
   const a = $('#btn-dl-image');
-  a.href = d.preview;
+  a.href = u;
   a.setAttribute('download', 'translate.' + (d.ext || 'png'));
   $('#tr-image-info').textContent = '耗时 ' + d.latency_ms + 'ms · 链路 ' + (d.via || '-') +
     ' · 尺寸 ' + (d.used_size || '-') + ' · ' + Math.round((d.bytes || 0) / 1024) + 'KB';
