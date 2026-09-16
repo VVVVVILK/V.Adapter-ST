@@ -1,46 +1,41 @@
 #!/bin/sh
-# V.Adapter - install the server loader into SillyTavern
+# ============================================================
+#  V.Adapter - 一键部署服务端引导器（Linux / macOS / Termux）
 #
-# Run this once after installing the extension itself.
-# It copies bootstrap/ into <ST>/plugins/V.Adapter/ so that the drawer
-# button can start the NovelAI protocol service.
+#  自动完成三件事，无需手工编辑任何文件：
+#    1. 找到酒馆根目录
+#    2. 安装引导器到 <酒馆>/plugins/V.Adapter/
+#    3. 把 config.yaml 的 enableServerPlugins 改为 true（自动备份）
 #
-# Existing runtime config in <ST>/plugins/V.Adapter/data/ is kept.
+#  运行完成后重启酒馆一次即可。
 #
-# Usage:  sh install-loader.sh
-#         ST=/path/to/SillyTavern sh install-loader.sh
-# Works on Linux, macOS and Termux.
+#  用法：sh install-loader.sh
+#        sh install-loader.sh /root/SillyTavern
+# ============================================================
 
-set -e
+DIR=$(cd "$(dirname "$0")" && pwd)
 
-SRC="$(cd "$(dirname "$0")" && pwd)"
-BOOT="$SRC/bootstrap"
-
-# EDIT THIS, or pass ST=... in the environment.
-ST="${ST:-$HOME/SillyTavern}"
-
-DST="$ST/plugins/V.Adapter"
-
-if [ ! -f "$BOOT/index.js" ]; then
-    echo "[error] bootstrap/index.js not found in $BOOT"
-    echo "        Run this script from inside the V.Adapter folder."
+if ! command -v node >/dev/null 2>&1; then
+  if [ -x "$DIR/../../../../node/bin/node" ]; then
+    NODE="$DIR/../../../../node/bin/node"
+  elif [ -x "$DIR/../../../../node/node" ]; then
+    NODE="$DIR/../../../../node/node"
+  else
+    echo "[错误] 未找到 node。请先安装 Node.js（Termux: pkg install nodejs）。"
     exit 1
+  fi
+else
+  NODE=node
 fi
 
-if [ ! -d "$ST" ]; then
-    echo "[error] SillyTavern not found: $ST"
-    echo "        Edit ST in this file, or run: ST=/path/to/SillyTavern sh install-loader.sh"
-    exit 1
+"$NODE" "$DIR/install-loader.mjs" "$@"
+CODE=$?
+
+echo
+if [ "$CODE" = "0" ]; then
+  echo "[完成] 请重启酒馆一次，之后无需再做任何配置。"
+else
+  echo "[失败] 见上方提示。可手动指定酒馆目录："
+  echo "       sh install-loader.sh /root/SillyTavern"
 fi
-
-mkdir -p "$DST/data"
-
-cp -f "$BOOT/index.js"     "$DST/index.js"
-cp -f "$BOOT/package.json" "$DST/package.json"
-
-echo
-echo "[ok] loader installed -> $DST"
-echo "     runtime config kept in $DST/data"
-echo
-echo "Next: set enableServerPlugins: true in config.yaml, restart SillyTavern,"
-echo "      then open the V.Adapter drawer and press 'Start protocol service'."
+exit $CODE

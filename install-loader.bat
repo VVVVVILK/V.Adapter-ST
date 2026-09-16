@@ -1,49 +1,40 @@
 @echo off
 setlocal
 REM ============================================================
-REM  V.Adapter - install the server loader into SillyTavern
+REM  V.Adapter - 一键部署服务端引导器
 REM
-REM  Run this once after installing the extension itself.
-REM  It copies bootstrap\ into <ST>\plugins\V.Adapter\ so that the
-REM  drawer button can start the NovelAI protocol service.
+REM  自动完成三件事，无需手工编辑任何文件：
+REM    1. 找到酒馆根目录
+REM    2. 安装引导器到 <酒馆>\plugins\V.Adapter\
+REM    3. 把 config.yaml 的 enableServerPlugins 改为 true（自动备份）
 REM
-REM  Existing runtime config in <ST>\plugins\V.Adapter\data\ is kept.
-REM
-REM  EDIT ST BELOW to point at your SillyTavern root directory.
-REM  (Keep this file ASCII-only: cmd.exe reads .bat as ANSI.)
+REM  运行完成后重启酒馆一次即可。
 REM ============================================================
 
-set "SRC=%~dp0"
-set "SRC=%SRC:~0,-1%"
+set "DIR=%~dp0"
 
-REM -------- EDIT THIS: SillyTavern root directory --------
-set "ST=<SillyTavern>"
-
-set "BOOT=%SRC%\bootstrap"
-set "DST=%ST%\plugins\V.Adapter"
-
-if not exist "%BOOT%\index.js" (
-  echo [error] bootstrap\index.js not found: %BOOT%
-  echo         Run this script from inside the V.Adapter folder.
-  exit /b 1
-)
-if not exist "%ST%" (
-  echo [error] SillyTavern not found: %ST%
-  echo         Open this .bat in a text editor and set ST to your SillyTavern root.
-  exit /b 1
+where node >nul 2>nul
+if errorlevel 1 (
+  if exist "%DIR%..\..\..\..\node\node.exe" (
+    set "NODE=%DIR%..\..\..\..\node\node.exe"
+  ) else (
+    echo [错误] 未找到 node。请先安装 Node.js，或把酒馆自带的 node 加入 PATH。
+    pause
+    exit /b 1
+  )
+) else (
+  set "NODE=node"
 )
 
-if not exist "%ST%\plugins" mkdir "%ST%\plugins"
-if not exist "%DST%" mkdir "%DST%"
-if not exist "%DST%\data" mkdir "%DST%\data"
-
-copy /Y "%BOOT%\index.js"      "%DST%\index.js"      >nul
-copy /Y "%BOOT%\package.json"  "%DST%\package.json"  >nul
+"%NODE%" "%DIR%install-loader.mjs" %*
+set "CODE=%ERRORLEVEL%"
 
 echo.
-echo [ok] loader installed -> %DST%
-echo      runtime config kept in %DST%\data
-echo.
-echo Next: set enableServerPlugins: true in config.yaml, restart SillyTavern,
-echo       then open the V.Adapter drawer and press "Start protocol service".
-exit /b 0
+if "%CODE%"=="0" (
+  echo [完成] 请重启酒馆一次，之后无需再做任何配置。
+) else (
+  echo [失败] 见上方提示。可手动指定酒馆目录：
+  echo        install-loader.bat "C:\SillyTavern"
+)
+pause
+exit /b %CODE%

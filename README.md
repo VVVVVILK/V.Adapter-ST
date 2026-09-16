@@ -65,27 +65,37 @@
 **无法访问 GitHub 时（本地安装）**：解压发布包（`V.Adapter-1.1.4-src.zip`），将整个
 `V.Adapter` 文件夹放入 `<SillyTavern>/data/<user-handle>/extensions/`，重启酒馆即可。
 
-### 二、安装服务引导器（一次性）
+### 二、安装服务引导器（一次性，仅第三方插件需要）
 
 酒馆只在进程启动时加载 `plugins/` 下的服务端代码，也不为服务端插件提供安装入口，
-所以引导器需要手动放置一次。放置后**不再需要随版本更新**——服务端实现本身位于
+所以引导器需要放置一次。放置后**不再需要随版本更新**——服务端实现本身位于
 扩展目录内，随「安装扩展」一起走。
 
-- Windows：编辑 `install-loader.bat` 里的 `ST=`，双击运行
-- Linux / macOS / Termux：`sh install-loader.sh`（可用 `ST=/path/to/SillyTavern` 指定）
+**只需要第三方酒馆生图插件时才需要本步骤**；仅使用 V.Canvas 时跳过，它走页面内直连。
 
-脚本把 `bootstrap/` 复制到 `<SillyTavern>/plugins/V.Adapter/`，已有的 `data/` 保持不动。
-随后确认 `config.yaml` 里 `enableServerPlugins: true`，**重启酒馆一次**。
+- Windows：双击扩展目录下的 `install-loader.bat`
+- Linux / macOS / Termux：在扩展目录执行 `sh install-loader.sh`
+
+脚本会自动完成三件事，**无需手工编辑任何文件**：
+
+1. 定位酒馆根目录（默认为扩展目录向上四级；可加参数指定，如
+   `sh install-loader.sh /root/SillyTavern`）
+2. 将 `bootstrap/` 复制到 `<SillyTavern>/plugins/V.Adapter/`（已有的 `data/` 保持不动）
+3. 把 `config.yaml` 的 `enableServerPlugins` 改为 `true`（原文件自动备份为
+   `config.yaml.bak-<时间戳>`）
+
+随后**重启酒馆一次**即可。此后再不需要任何配置。
 
 ### 三、启动协议服务
 
-扩展抽屉的三行：
+扩展抽屉：
 
 ```
-V.Adapter      v1.1.4-st.1
+V.Adapter      v1.1.5-st.1
+   出图引擎              [ 就绪 ]
    协议服务              [ 已停止 / 运行中 · 0.0.0.0:8888 ]
    [ 启动协议服务 ]
-   [ 重载实现 ]
+   [ 应用更新 ]     ← 更新插件文件后点这里生效，不必重启酒馆
    [ 打开管理面板 ]
 ```
 

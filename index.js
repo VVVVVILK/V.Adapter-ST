@@ -425,7 +425,7 @@ function addSettingsUI() {
                         </button>
                     </div>
                     <div id="v_adapter_svc_hint" class="v_adapter_row v_adapter_svc_hint">
-                        <small>协议服务为<b>可选</b>能力：仅供柏宝绘这类第三方 NAI 客户端连接。
+                        <small>协议服务为<b>可选</b>能力：仅供第三方酒馆生图插件连接。
                         V.Canvas 默认走页面内直连，无需启动本服务。</small>
                     </div>
                 </div>
@@ -506,10 +506,11 @@ function renderServiceState(st) {
         toggle.prop('disabled', true).find('span').text('启动协议服务');
         reload.prop('disabled', true);
         if (hint.length) {
-            hint.html('<small>协议服务为<b>可选</b>能力：仅供柏宝绘这类第三方 NAI 客户端连接；' +
-                'V.Canvas 默认走页面内直连，无需本服务。<br>' +
-                '如需启用：运行扩展目录下的 <code>install-loader</code>，' +
-                '在 <code>config.yaml</code> 设置 <code>enableServerPlugins: true</code>，然后重启酒馆。</small>');
+            hint.html('<small>服务端未部署 —— 仅<b>第三方酒馆生图插件</b>需要它，' +
+                'V.Canvas 默认走页面内直连、不需要。<br>' +
+                '启用方式：在扩展目录运行 <code>install-loader</code>' +
+                '（Windows 双击 <code>.bat</code>，Linux/Termux 执行 <code>.sh</code>），' +
+                '它会自动完成部署，重启酒馆一次即可，无需手工改任何配置。</small>');
         }
         return;
     }
@@ -523,9 +524,9 @@ function renderServiceState(st) {
         toggle.find('span').text('停止协议服务');
         toggle.find('i').removeClass('fa-power-off').addClass('fa-stop');
         if (hint.length) {
-            hint.html('<small>第三方 NAI 客户端请填写 <code>' +
+            hint.html('<small>第三方酒馆生图插件请把接口地址填为 <code>' +
                 String(st.listen ?? '').replace(/^0\.0\.0\.0/, '127.0.0.1') +
-                '</code>，Key 与服务端 <code>nai_key</code> 一致。' +
+                '</code>，API Key 与服务端一致。' +
                 '更新插件文件后点「应用更新」生效，不必重启酒馆。</small>');
         }
     } else {
@@ -533,7 +534,7 @@ function renderServiceState(st) {
         toggle.find('span').text('启动协议服务');
         toggle.find('i').removeClass('fa-stop').addClass('fa-power-off');
         if (hint.length) {
-            hint.html('<small>协议服务为<b>可选</b>能力：启动后第三方 NAI 客户端才能连接；' +
+            hint.html('<small>服务为<b>可选</b>能力：启动后第三方酒馆生图插件才能连接；' +
                 '仅用 V.Canvas 时无需启动。</small>');
         }
     }
