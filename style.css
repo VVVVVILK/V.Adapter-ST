@@ -69,6 +69,19 @@
     cursor: default;
 }
 
+#v_adapter_drawer .v_adapter_svc_hint {
+    display: block;
+    margin-top: 4px;
+    line-height: 1.5;
+    opacity: 0.75;
+}
+
+#v_adapter_drawer .v_adapter_svc_hint code {
+    padding: 0 3px;
+    border-radius: 3px;
+    background: var(--SmartThemeBlurTintColor, rgba(127, 127, 127, 0.18));
+}
+
 /* ── 管理面板浮层 ──
    尺寸完全由绝对定位的上下左右偏移决定，不使用百分比高度或弹性伸缩：
    手机浏览器与应用内 WebView 对固定定位 + 百分比高度的解析差异较大，

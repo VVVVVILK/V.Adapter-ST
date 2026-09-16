@@ -419,9 +419,14 @@ function addSettingsUI() {
                         </button>
                     </div>
                     <div class="v_adapter_row">
-                        <button id="v_adapter_svc_reload" class="menu_button">
-                            <i class="fa-solid fa-rotate"></i><span>重载实现</span>
+                        <button id="v_adapter_svc_reload" class="menu_button"
+                                title="更新过插件文件后点这里即可生效，不必重启酒馆">
+                            <i class="fa-solid fa-rotate"></i><span>应用更新</span>
                         </button>
+                    </div>
+                    <div id="v_adapter_svc_hint" class="v_adapter_row v_adapter_svc_hint">
+                        <small>协议服务为<b>可选</b>能力：仅供柏宝绘这类第三方 NAI 客户端连接。
+                        V.Canvas 默认走页面内直连，无需启动本服务。</small>
                     </div>
                 </div>
                 <div class="v_adapter_row">
@@ -484,21 +489,31 @@ function toastError(msg) {
 
 // renderServiceState 按引导器的返回刷新抽屉。
 //
-// 协议服务属于可选能力（供同网络的第三方 NAI 客户端使用）。未部署引导器时整块隐藏：
-// 主出图通道不依赖它，展示「未安装」会让使用者误以为扩展不可用。
+// 协议服务属于可选能力（供同网络的第三方 NAI 客户端使用），主出图通道是页面内直连。
+// 未部署引导器时该块仍显示但置灰，并给出部署指引——隐藏会让需要该功能的人找不到入口。
 function renderServiceState(st) {
     const block = $('#v_adapter_svc_block');
     const detail = $('#v_adapter_svc_detail');
     const toggle = $('#v_adapter_svc_toggle');
     const reload = $('#v_adapter_svc_reload');
+    const hint = $('#v_adapter_svc_hint');
     if (!block.length) return;
 
+    block.show();
+
     if (!st || !st.installed) {
-        block.hide();
+        detail.text('未部署（可选）').removeClass('v_adapter_svc_on').addClass('v_adapter_svc_off');
+        toggle.prop('disabled', true).find('span').text('启动协议服务');
+        reload.prop('disabled', true);
+        if (hint.length) {
+            hint.html('<small>协议服务为<b>可选</b>能力：仅供柏宝绘这类第三方 NAI 客户端连接；' +
+                'V.Canvas 默认走页面内直连，无需本服务。<br>' +
+                '如需启用：运行扩展目录下的 <code>install-loader</code>，' +
+                '在 <code>config.yaml</code> 设置 <code>enableServerPlugins: true</code>，然后重启酒馆。</small>');
+        }
         return;
     }
 
-    block.show();
     toggle.prop('disabled', false);
     reload.prop('disabled', !st.running);
 
@@ -507,10 +522,20 @@ function renderServiceState(st) {
             .removeClass('v_adapter_svc_off').addClass('v_adapter_svc_on');
         toggle.find('span').text('停止协议服务');
         toggle.find('i').removeClass('fa-power-off').addClass('fa-stop');
+        if (hint.length) {
+            hint.html('<small>第三方 NAI 客户端请填写 <code>' +
+                String(st.listen ?? '').replace(/^0\.0\.0\.0/, '127.0.0.1') +
+                '</code>，Key 与服务端 <code>nai_key</code> 一致。' +
+                '更新插件文件后点「应用更新」生效，不必重启酒馆。</small>');
+        }
     } else {
         detail.text('已停止').removeClass('v_adapter_svc_on').addClass('v_adapter_svc_off');
         toggle.find('span').text('启动协议服务');
         toggle.find('i').removeClass('fa-stop').addClass('fa-power-off');
+        if (hint.length) {
+            hint.html('<small>协议服务为<b>可选</b>能力：启动后第三方 NAI 客户端才能连接；' +
+                '仅用 V.Canvas 时无需启动。</small>');
+        }
     }
 }
 
