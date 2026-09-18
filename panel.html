@@ -121,6 +121,11 @@ td.prompt{max-width:260px;word-break:break-word}
 .mask-card{width:100%;max-width:390px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:26px 24px;box-shadow:0 20px 60px rgb(0 0 0 / .5)}
 .mask-card h2{font-size:18px;margin-bottom:8px}
 .mask-card p{font-size:12.5px;color:var(--muted-fg);line-height:1.65;margin-bottom:16px}
+/* 需要用户看清的说明块：这条链路「能做什么、做不到什么」必须在配上游的地方就说清。
+   字号与正文同为 14px、行高更松 —— 用户明确要求「看得清清楚楚」 */
+.notice{margin-bottom:16px;padding:16px 18px;border-radius:10px;border:1px solid hsl(38 92% 50% / .45);background:hsl(38 92% 50% / .09);font-size:14px;line-height:1.9;color:var(--fg)}
+.notice:last-child{margin-bottom:0}
+.notice b{color:var(--warning)}
 </style>
 </head>
 <body>
@@ -273,6 +278,18 @@ td.prompt{max-width:260px;word-break:break-word}
         <div class="card">
           <div class="card-head"><div><div class="card-title">OpenAI 兼容 API</div><div class="card-desc">OpenAI 兼容生图 API</div></div></div>
           <div class="card-body">
+            <div class="notice">
+              <b>这条链路是怎么画图的 —— 先看清，能省掉大量困惑</b>
+              <br>本服务把 NovelAI 协议的请求转成 <b>OpenAI 兼容接口</b>发出去，
+              <b>图是由上游模型生成的</b>，本服务不参与作画。
+              <br>· 上游是<b>生图模型</b>（qwen-image-2.0、dall-e-3 这类）：按提示词出图，尺寸等参数直接生效。
+              <br>· 上游是<b>聊天画图模型</b>（反代的 qwen3.8-max 这类）：本质是<b>多模态模型在画</b>，
+              因此会出现<b>基于指令的拒答</b> —— 这一类拒答<b>有机会</b>被提示词前缀影响
+              （就是客户端里那个「生图破限词」）。
+              <br>⚠️ 但<b>平台级安全过滤不受提示词影响</b>：若上游服务商在服务端就拦掉请求、
+              或对出图结果再做一次安全分类，提示词怎么写都不会放行。所以「破限」是<b>有机会、不保证</b>，
+              别理解成一定能解掉审核。反复尝试还可能触发上游风控，风险由使用者自行承担。
+            </div>
             <label class="field"><span class="lab">API 地址</span>
               <input type="text" id="s-qwen-url" placeholder="http://127.0.0.1:4000/v1">
               <span class="hint">OpenAI 兼容生图接口的 base url，通常带 /v1 结尾。</span></label>
