@@ -287,3 +287,34 @@
 }
 #v_fab_dock .v_fab_label b { color: var(--fab-c1); }
 #v_fab_dock .v_fab_btn:hover .v_fab_label { opacity: 1; transform: translateY(-50%) translateX(0); }
+
+/* ── 徽章里的常驻动画（图标自己会动，不必等悬停）──
+   只动 transform / opacity / stroke-dashoffset，不触发布局、不产生重排：
+   · Adapter = 光之门拱：一道光沿拱门扫过 + 门内光点上行 + 外圈刻度缓转；
+   · Canvas 的棱镜分光动画由 V.Canvas 自己的样式表负责；
+   · 两者共用的渐变环比悬停时慢速自转。 */
+#v_fab_dock .v_fab_btn::before { animation: vfab_ring_spin 14s linear infinite; }
+
+#v_adapter_fab .vfa-dial {
+    transform-box: view-box;
+    transform-origin: 24px 24px;
+    animation: vfa_dial 26s linear infinite;
+}
+#v_adapter_fab .vfa-sweep { animation: vfa_sweep 2.4s linear infinite; }
+#v_adapter_fab .vfa-spark { animation: vfa_spark 2.4s ease-in-out infinite; }
+
+@keyframes vfa_dial { to { transform: rotate(360deg); } }
+@keyframes vfa_sweep { from { stroke-dashoffset: 46; } to { stroke-dashoffset: 0; } }
+@keyframes vfa_spark {
+    0% { transform: translateY(3px); opacity: 0; }
+    22% { opacity: 1; }
+    72% { opacity: 1; }
+    100% { transform: translateY(-9px); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #v_fab_dock .v_fab_btn::before,
+    #v_adapter_fab .vfa-dial,
+    #v_adapter_fab .vfa-sweep,
+    #v_adapter_fab .vfa-spark { animation: none; }
+}

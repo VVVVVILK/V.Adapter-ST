@@ -1,10 +1,10 @@
 // index.js — V.Adapter 酒馆扩展入口。
-// 移植自 V.Adapter（Go）v1.1.4：扩展自己就是出图引擎（上游对接 / 聊天兜底 /
+// 移植自 V.Adapter（Go）v1.1.4：扩展自己就是出图引擎（出图服务对接 / 聊天兜底 /
 // 熔断 / 去水印 / 角色转译 / 生成记录 / 管理面板），装上即可出图。
 // 对应关系：Go 版 handleGenerateImage 主体 → 本文件 runGeneration()；
 // 管理面板端点 → lib/virtual-api.js；面板 UI → panel.html。
 //
-// 职责边界：本扩展为引擎与指挥层，负责「怎么画」（上游对接、协议转换、
+// 职责边界：本扩展为引擎与指挥层，负责「怎么画」（出图服务对接、协议转换、
 //           去水印、生成记录、8888 协议端口）。监听 AI 回复自动出图属呈现层的职责，
 //           由 V.Canvas 承担，本扩展不参与。
 //
@@ -66,11 +66,14 @@ function addFabButton() {
         '<svg viewBox="0 0 48 48" width="30" height="30" fill="none" stroke-linecap="round" aria-hidden="true">'
         + '<defs><linearGradient id="vfab_ad_g" x1="0" y1="0" x2="0" y2="1">'
         + '<stop offset="0" stop-color="#fde68a"/><stop offset="1" stop-color="#fb923c"/></linearGradient></defs>'
-        + '<circle cx="24" cy="24" r="19" stroke="rgba(251,191,36,.35)" stroke-width="1.2"/>'
-        + '<path d="M24 3 v4 M45 24 h-4 M24 45 v-4 M3 24 h4" stroke="rgba(251,191,36,.55)" stroke-width="1.4"/>'
+        + '<g class="vfa-dial">'
+        + '<circle cx="24" cy="24" r="19" stroke="rgba(251,191,36,.28)" stroke-width="1.2"/>'
+        + '<path d="M24 3 v4 M45 24 h-4 M24 45 v-4 M3 24 h4" stroke="rgba(251,191,36,.5)" stroke-width="1.4"/>'
+        + '</g>'
         + '<path d="M16 30 V21 C16 15.5 19.5 12.5 24 12.5 C28.5 12.5 32 15.5 32 21 V30" stroke="url(#vfab_ad_g)" stroke-width="2"/>'
+        + '<path class="vfa-sweep" d="M16 30 V21 C16 15.5 19.5 12.5 24 12.5 C28.5 12.5 32 15.5 32 21 V30" stroke="#fff7ed" stroke-width="2.2" stroke-dasharray="6 40"/>'
         + '<path d="M13.5 30 H34.5" stroke="url(#vfab_ad_g)" stroke-width="2"/>'
-        + '<circle cx="24" cy="21.5" r="1.6" fill="#fde68a"/>'
+        + '<circle class="vfa-spark" cx="24" cy="27" r="1.9" fill="#fde68a"/>'
         + '</svg>'
         + '<span class="v_fab_label"><b>V.Adapter</b> · 出图引擎</span>';
     dock.appendChild(btn);
@@ -294,7 +297,7 @@ async function generateAndDeliver({ text, translate = false, size = '' }) {
     let prompt = text.trim();
     let neg = '';
     if (translate) {
-        toastr.info('正在转译描述 …', 'V.Adapter');
+        toastr.info('正在把描述扩写成提示词 …', 'V.Adapter');
         const target = {
             url: settingsGet.qwenURL(),
             key: settingsGet.qwenKey(),
@@ -330,7 +333,7 @@ function registerSlashCommand() {
         namedArgumentList: [
             SlashCommandNamedArgument.fromProps({
                 name: 'translate',
-                description: '先把内容当描述转译成提示词（默认 true）；false = 直接把内容当提示词出图',
+                description: '先把内容当描述扩写成提示词（默认 true）；false = 直接把内容当提示词出图',
                 typeList: [ARGUMENT_TYPE.BOOLEAN],
                 defaultValue: 'true',
             }),
@@ -349,7 +352,7 @@ function registerSlashCommand() {
         ],
         helpString: `
             <div>
-                用 V.Adapter（上游 OpenAI 兼容生图）生成一张图片并发送到聊天。<br />
+                用 V.Adapter（OpenAI 兼容的出图服务）生成一张图片并发送到聊天。<br />
                 例：/vgen 一只橘猫趴在窗台上晒太阳 &nbsp;&nbsp; /vgen translate=false size=832x1216 1girl, silver hair, school uniform
             </div>
         `,
@@ -486,7 +489,7 @@ window.__V_ADAPTER_NAI__ = async function (naiBody, options) {
         }
 
         const r = await runGeneration(prompt, neg, size);
-        // CORS 降级结果：上游只给出远程链接、浏览器侧因跨域下载不到字节。
+        // CORS 降级结果：出图服务只给出远程链接、浏览器侧因跨域下载不到字节。
         // 此时把链接经 url 字段原样交回调用方，由调用方直接引用远程图；
         // 若不区分，调用方会把「无字节的成功结果」误判为失败。
         if (!r.data && r.remoteUrl) {

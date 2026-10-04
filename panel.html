@@ -207,9 +207,9 @@ details.explain.warn .explain-body b{color:var(--warning)}
     </div>
     <nav class="sidebar-nav">
       <button class="nav-btn active" data-page="overview">运行总览<small>第一次用？从这页开始</small></button>
-      <button class="nav-btn" data-page="translate">角色转译<small>一句话，直接出一张图</small></button>
+      <button class="nav-btn" data-page="translate">测试出图<small>自检：能不能出图</small></button>
       <button class="nav-btn" data-page="logs">生成记录<small>出过哪些图、成没成功</small></button>
-      <button class="nav-btn" data-page="settings">设置中心<small>填上游地址和密钥的地方</small></button>
+      <button class="nav-btn" data-page="settings">设置中心<small>填画图服务地址和密钥的地方</small></button>
     </nav>
     <div class="sidebar-foot">
       <span class="pill" id="pill"><span class="pdot"></span><span id="pill-text">在线</span></span>
@@ -242,8 +242,8 @@ details.explain.warn .explain-body b{color:var(--warning)}
             <div class="qs-step" id="qs-step-1">
               <div class="qs-dot">1</div>
               <div class="qs-body">
-                <div class="qs-title">填好上游画图 API（地址、密钥、模型名）</div>
-                <div class="qs-hint">图是上游模型画的，本插件只负责转接。<span class="muted">术语：这就是所谓「OpenAI 兼容生图 API」。</span></div>
+                <div class="qs-title">填好画图服务的 API（地址、密钥、模型名）</div>
+                <div class="qs-hint">图是出图服务那边的模型画的，本插件只负责转接。<span class="muted">术语：这就是所谓「OpenAI 兼容生图 API」。</span></div>
                 <div class="qs-act"><button class="btn sm" id="qs-goto-settings">去填写 →</button></div>
               </div>
             </div>
@@ -268,7 +268,7 @@ details.explain.warn .explain-body b{color:var(--warning)}
                 <div class="qs-title">然后怎么用？</div>
                 <div class="qs-hint">
                   · 在酒馆聊天框输入 <span class="mono">/vgen 一只橘猫趴在窗台上</span> 直接出图；<br>
-                  · 或到「角色转译」页输入一句话出图；<br>
+                  · 或到「测试出图」页自检一次（结果只在面板里）；<br>
                   · <b>V.Canvas</b>：装好后地址留空即自动直连（读的是<b>服务端那一份配置</b>，在 <span class="mono">:8888</span> 面板改）；<br>
                   · 第三方 NovelAI 插件 / 外部客户端：渠道 URL 填 <span class="mono">http://&lt;本机IP&gt;:8888</span>，Key 填「NovelAI 网关」里的接入密钥（见下方对接卡片）。
                 </div>
@@ -311,7 +311,7 @@ details.explain.warn .explain-body b{color:var(--warning)}
           <div class="card">
             <div class="card-head"><div><div class="card-title">当前配置</div><div class="card-desc">出图用的是这份（密钥只显示开头几位）</div></div></div>
             <div class="card-body">
-              <div class="kv"><span class="k">上游 API 地址</span><span class="v mono" id="st-qwenurl">-</span></div>
+              <div class="kv"><span class="k">画图服务的 API 地址</span><span class="v mono" id="st-qwenurl">-</span></div>
               <div class="kv"><span class="k">画图模型</span><span class="v mono" id="st-qwenmodel">-</span></div>
               <div class="kv"><span class="k">API 密钥</span><span class="v mono" id="st-qwenkey">-</span></div>
               <div class="kv"><span class="k">默认图片尺寸</span><span class="v mono" id="st-defaultsize">-</span></div>
@@ -338,8 +338,8 @@ details.explain.warn .explain-body b{color:var(--warning)}
           <div class="card-body">
             <div class="kv"><span class="k">NovelAI 渠道 URL</span><span class="v"><code class="code mono" id="st-gw-url">-</code></span></div>
             <div class="kv"><span class="k">NovelAI 渠道 Key</span><span class="v" id="st-gw-key">-</span></div>
-            <div class="kv"><span class="k">模型名</span><span class="v muted">随便填 —— 网关按自己的上游出图，客户端填的模型名会被忽略</span></div>
-            <div class="kv"><span class="k">两份配置别改错</span><span class="v">经 <span class="mono">:8888</span> 连进来的客户端（<b>V.Canvas</b>、第三方 NovelAI 插件）读的是<b>服务端那一份</b>配置（<span class="mono">&lt;SillyTavern&gt;\plugins\V.Adapter\data\</span>，在 <span class="mono">:8888</span> 的管理面板里改）；本面板这份只作用于 <span class="mono">/vgen</span> 命令与「角色转译」。</span></div>
+            <div class="kv"><span class="k">模型名</span><span class="v muted">随便填 —— 网关用它自己配的画图服务出图，客户端填的模型名会被忽略</span></div>
+            <div class="kv"><span class="k">两份配置别改错</span><span class="v">经 <span class="mono">:8888</span> 连进来的客户端（<b>V.Canvas</b>、第三方 NovelAI 插件）读的是<b>服务端那一份</b>配置（<span class="mono">&lt;SillyTavern&gt;\plugins\V.Adapter\data\</span>，在 <span class="mono">:8888</span> 的管理面板里改）；本面板这份只作用于 <span class="mono">/vgen</span> 命令与「测试出图」。</span></div>
           </div>
         </div>
 
@@ -347,7 +347,7 @@ details.explain.warn .explain-body b{color:var(--warning)}
           <div class="card-head"><div><div class="card-title">最近生成记录</div><div class="card-desc">最新 5 条；全部记录见「生成记录」页</div></div>
             <button class="btn ghost sm" id="btn-refresh-overview">刷新</button></div>
           <div class="card-body" style="padding:0">
-            <table><thead><tr><th>时间</th><th>类型</th><th>尺寸</th><th><span class="term" data-term="via">链路</span></th><th>耗时</th><th>结果</th><th>提示词</th></tr></thead>
+            <table><thead><tr><th>时间</th><th>类型</th><th>尺寸</th><th><span class="term" data-term="via">走的哪条路</span></th><th>耗时</th><th>结果</th><th>提示词</th></tr></thead>
             <tbody id="recent-rows"><tr><td colspan="7" class="muted" style="padding:14px 10px">暂无记录</td></tr></tbody></table>
           </div>
         </div>
@@ -357,13 +357,13 @@ details.explain.warn .explain-body b{color:var(--warning)}
       <section class="page" id="page-settings">
         <div class="page-head">
           <h1>设置中心</h1>
-          <p><b>这一页是干嘛的：</b>填「图由谁画」——上游 API 的地址、密钥和模型。<b>填完要点下面的「保存设置」才生效。</b>
-          <span id="scope-sentence">本页配置只作用于 <span class="mono">/vgen</span> 命令和「角色转译」；V.Canvas 等客户端用的是服务端另一份配置。</span></p>
+          <p><b>这一页是干嘛的：</b>填「图由谁画」——画图服务的地址、密钥和模型。<b>填完要点下面的「保存设置」才生效。</b>
+          <span id="scope-sentence">本页配置只作用于 <span class="mono">/vgen</span> 命令和「测试出图」；V.Canvas 等客户端用的是服务端另一份配置。</span></p>
         </div>
 
         <div class="card">
           <div class="card-head">
-            <div><div class="card-title">第一步 · 上游画图 API <span class="chip must">必须填</span></div>
+            <div><div class="card-title">第一步 · 画图服务 API <span class="chip must">必须填</span></div>
             <div class="card-desc">随便找一个「OpenAI 兼容」的生图服务或反代都行</div></div>
           </div>
           <div class="card-body">
@@ -376,7 +376,7 @@ details.explain.warn .explain-body b{color:var(--warning)}
               <span class="row" style="margin-top:2px"><button class="btn danger sm" id="btn-clear-qwen">清除已保存的密钥</button></span></label>
             <label class="field"><span class="lab"><span class="step">3</span>画图模型名</span>
               <input type="text" id="s-qwen-model" placeholder="qwen3.8-max">
-              <span class="hint">照你上游服务提供的模型名填。专门画图的模型如 <span class="mono">qwen-image</span>、<span class="mono">dall-e-3</span>；反代的聊天模型也能画（见下方「出图方式」）。</span></label>
+              <span class="hint">照你的出图服务提供的模型名填。专门画图的模型如 <span class="mono">qwen-image</span>、<span class="mono">dall-e-3</span>；反代的聊天模型也能画（见下方「出图方式」）。</span></label>
             <label class="field"><span class="lab"><span class="step">4</span>默认图片尺寸（一般不用改）</span>
               <input type="text" id="s-default-size" placeholder="1024x1024">
               <span class="hint">格式「宽x高」。客户端没指定尺寸时的兜底值。</span></label>
@@ -385,12 +385,12 @@ details.explain.warn .explain-body b{color:var(--warning)}
 
         <div class="card">
           <div class="card-head">
-            <div><div class="card-title">第二步 · 出图方式 <span class="chip must">按你的上游选</span></div>
+            <div><div class="card-title">第二步 · 出图方式 <span class="chip must">按你的出图服务选</span></div>
             <div class="card-desc">选错的症状是「一直失败」——两张快选按钮可以替你选好</div></div>
           </div>
           <div class="card-body">
             <div class="row" style="margin-bottom:12px">
-              <span class="muted" style="font-size:12.5px">我的上游是：</span>
+              <span class="muted" style="font-size:12.5px">我的出图服务是：</span>
               <button class="btn sm ghost" id="btn-pick-chatmodel">聊天模型（反代画的图，慢但稳）→ chat_only</button>
               <button class="btn sm ghost" id="btn-pick-imgmodel">专门的画图模型（dall-e-3 等，快）→ auto</button>
             </div>
@@ -413,7 +413,7 @@ details.explain.warn .explain-body b{color:var(--warning)}
         <div class="card">
           <div class="card-head">
             <div><div class="card-title">第三步 · NovelAI 网关 <span class="chip opt">给其他插件 / 客户端连的入口</span></div>
-            <div class="card-desc">本服务把上面配的 OpenAI 上游包装成 NovelAI 协议，监听 <span class="mono">:8888</span> 对外提供 —— V.Canvas、第三方 NAI 插件、NovelAI 客户端都从这里连</div></div>
+            <div class="card-desc">本服务把上面配的 OpenAI 出图服务包装成 NovelAI 协议，监听 <span class="mono">:8888</span> 对外提供 —— V.Canvas、第三方 NAI 插件、NovelAI 客户端都从这里连</div></div>
           </div>
           <div class="card-body">
             <label class="field"><span class="lab">监听地址</span>
@@ -446,20 +446,21 @@ details.explain.warn .explain-body b{color:var(--warning)}
         <div class="search-empty" id="search-empty">没有匹配的设置项。</div>
       </section>
 
-      <!-- 角色转译 -->
+      <!-- 测试出图 -->
       <section class="page" id="page-translate">
         <div class="page-head">
-          <h1>角色转译</h1>
-          <p><b>这一页是干嘛的：</b>输入一句话（比如一个角色名），它先帮你扩写成完整提示词，再直接出一张图。图只在这里预览，<b>不会进聊天记录</b>；
-          想把图发进聊天请用酒馆里的 <span class="mono">/vgen</span> 命令。</p>
+          <h1>测试出图</h1>
+          <p><b>这一页是自检用的，不是日常功能</b> —— 输入一句话（角色名、场景都行）出一张图，确认<b>画图服务能不能用</b>。
+          出图前会先把这句话<b>扩写</b>成完整提示词，这一步由画图服务完成：能扩写就说明它活着、协议通。
+          图只在这里预览，<b>不会进聊天记录</b>；想把图发进聊天，在酒馆里用 <span class="mono">/vgen</span> 命令。</p>
         </div>
         <div class="card">
-          <div class="card-head"><div><div class="card-title">输入描述</div><div class="card-desc">会先用模型扩写成提示词（这一步叫<span class="term" data-term="expand">转译</span>），再出图</div></div></div>
+          <div class="card-head"><div><div class="card-title">输入描述</div><div class="card-desc">会先用模型扩写成提示词（先用模型把这句话<span class="term" data-term="expand">扩写</span>成完整提示词），再出图</div></div></div>
           <div class="card-body">
             <textarea id="tr-text" rows="4" placeholder="例如：哆啦A梦里面的野比玉子"></textarea>
             <div class="row" style="margin-top:10px;flex-wrap:wrap;align-items:center;gap:10px">
-              <button class="btn primary" id="btn-translate-gen">转译并出图</button>
-              <button class="btn ghost" id="btn-translate">只扩写文字，不出图</button>
+              <button class="btn primary" id="btn-translate-gen">出图</button>
+              <button class="btn ghost" id="btn-translate">只看扩写结果，不出图</button>
               <button class="btn ghost sm" id="btn-copy-translate">复制扩写结果</button>
             </div>
             <div class="row" style="margin-top:10px;flex-wrap:wrap;align-items:center;gap:14px">
@@ -476,7 +477,7 @@ details.explain.warn .explain-body b{color:var(--warning)}
               </label>
             </div>
             <div id="tr-image-wrap" style="display:none;margin-top:16px">
-              <img id="tr-image" alt="角色转译出图结果" style="display:block;max-width:100%;border-radius:10px;border:1px solid var(--border)">
+              <img id="tr-image" alt="测试出图结果" style="display:block;max-width:100%;border-radius:10px;border:1px solid var(--border)">
               <div class="row" style="margin-top:10px;flex-wrap:wrap;align-items:center;gap:10px">
                 <a class="btn ghost sm" id="btn-dl-image" download="translate.png">下载图片</a>
                 <button class="btn ghost sm" id="btn-regen">再出一张（沿用同一段提示词，避免画风突变）</button>
@@ -522,9 +523,9 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 
 /* ── 名词白话解释：点带虚线的词弹出 ── */
 const TERMS = {
-  via: { t: '链路（走的哪条路）', d: '一次出图实际走的通道。images = 标准画图接口（快）；chat = 聊天画图（慢但稳）；「images→chat兜底」= 先试快的，失败后自动换的。' },
-  fuse: { t: '熔断', d: '标准接口连续失败 3 次后，插件先假设它坏了，30 分钟内不再去撞它、直接走聊天画图。改过设置或换上游后会自动恢复正常探测。' },
-  expand: { t: '转译（扩写）', d: '把「哆啦A梦里的野比玉子」这样一句话，交给文字模型补充成一段完整的画面描述（外貌、服装、场景、画风），再拿去出图。' },
+  via: { t: '走的哪条路（链路）', d: '一次出图实际走的通道。images = 标准画图接口（快）；chat = 聊天画图（慢但稳）；「images→chat兜底」= 先试快的，失败后自动换的。' },
+  fuse: { t: '熔断', d: '标准接口连续失败 3 次后，插件先假设它坏了，30 分钟内不再去撞它、直接走聊天画图。改过设置或换出图服务后会自动恢复正常探测。' },
+  expand: { t: '扩写', d: '把「哆啦A梦里的野比玉子」这样一句话，交给文字模型补充成一段完整的画面描述（外貌、服装、场景、画风），再拿去出图。' },
 };
 
 /* ── 图片地址解析 ──
@@ -801,7 +802,7 @@ async function loadSettings() {
   $('#s-nai-key').placeholder = s.nai_key_required ? (s.nai_key_masked + '（留空不改）') : '（不校验）';
   $('#hint-qwen-key').textContent = s.qwen_key_set
     ? ('已保存（显示为 ' + s.qwen_key_masked + '）。要换就输入新值，留空 = 不动。')
-    : '还没设置，填上游给你的密钥。';
+    : '还没设置，填服务商给你的密钥。';
   $('#hint-nai-key').textContent = s.nai_key_required
     ? ('当前密钥：' + s.nai_key_masked + '。客户端渠道要填同一个值，改了记得两边同步。')
     : '当前不校验（客户端随便填个非空 Key 就能连）。只在本机用可以不管；公网 / 局域网部署建议设置一个。';
@@ -843,7 +844,7 @@ async function saveSettings() {
 async function testConnection() {
   const btn = $('#btn-test');
   btn.disabled = true; btn.textContent = '画图中…（最长 300 秒）';
-  $('#test-result').innerHTML = '<span class="muted">正在调用上游画图，约 6~60 秒，请稍候…</span>';
+  $('#test-result').innerHTML = '<span class="muted">正在调用画图服务，约 6~60 秒，请稍候…</span>';
   $('#test-preview').style.display = 'none';
   const payload = {
     url: $('#t-url').value.trim(),
@@ -857,7 +858,7 @@ async function testConnection() {
   if (!r.ok || !r.data || !r.data.success) {
     const msg = (r.data && (r.data.error || r.data.message)) || ('HTTP ' + r.status);
     $('#test-result').innerHTML = '<span class="err">' + esc(msg) + '</span>' +
-      '<div class="muted" style="font-size:12px;margin-top:8px">排错顺序：① 检查地址/密钥/模型名是否照服务商给的原样填；② 到「生成记录」页看详细失败原因；③ 失败原因是「上游风控/验证码」时等几分钟再试。</div>';
+      '<div class="muted" style="font-size:12px;margin-top:8px">排错顺序：① 检查地址/密钥/模型名是否照服务商给的原样填；② 到「生成记录」页看详细失败原因；③ 失败原因是「出图服务风控/验证码」时等几分钟再试。</div>';
     toast('测试连接失败', 'bad');
     return;
   }
@@ -868,7 +869,7 @@ async function testConnection() {
     const u = imgUrl(d.preview);
     img.onerror = () => showImgError(img, u);
     img.onload = () => { img.style.display = 'block'; };
-    // 远程图片禁用 Referer：上游 CDN 有防盗链，带酒馆地址的 Referer 一律 403
+    // 远程图片禁用 Referer：出图服务 CDN 有防盗链，带酒馆地址的 Referer 一律 403
     img.referrerPolicy = 'no-referrer';
     img.src = u;
   }
@@ -887,7 +888,7 @@ async function loadLogs() {
 }
 
 // renderLogRows 把记录渲染成缩略图墙：
-// 成功 → 图片卡（点开看原图）；失败 → 错误卡。图片显示带 no-referrer（上游 CDN 防盗链），
+// 成功 → 图片卡（点开看原图）；失败 → 错误卡。图片显示带 no-referrer（出图服务 CDN 防盗链），
 // 加载失败换占位说明（远程链接可能已过期）。
 function thumbImg(url) {
   return '<img src="' + esc(imgUrl(url)) + '" referrerpolicy="no-referrer" loading="lazy" alt="生成记录图片">';
@@ -909,7 +910,7 @@ function markImgErrors(root) {
 function renderLogRows(rows) {
   const wrap = $('#log-rows');
   if (!rows.length) {
-    wrap.innerHTML = '<div class="empty">还没有记录。出一次图就会出现在这里 —— 测试连接、角色转译、聊天里的自动配图（含 V.Canvas 经本插件出的图）都会记下，并保存图片本身。</div>';
+    wrap.innerHTML = '<div class="empty">还没有记录。出一次图就会出现在这里 —— 测试连接、测试出图、聊天里的自动配图（含 V.Canvas 经本插件出的图）都会记下，并保存图片本身。</div>';
     return;
   }
   wrap.innerHTML = '<div class="thumbs">' + rows.map(r => {
@@ -951,7 +952,7 @@ $('#btn-test-advanced').onclick = () => {
   const el = $('#test-advanced');
   el.style.display = el.style.display === 'none' ? 'block' : 'none';
 };
-// 出图方式快选：按上游类型替用户选好（仍需点「保存设置」）
+// 出图方式快选：按出图服务类型替用户选好（仍需点「保存设置」）
 $('#btn-pick-chatmodel').onclick = () => {
   $('#s-chat-fallback').value = 'chat_only';
   toast('已选「只走聊天画图」，记得点「保存设置」');
@@ -970,7 +971,7 @@ $('#btn-clear-logs').onclick = async () => {
 $('#btn-clear-qwen').onclick = () => clearKey('qwen_key');
 $('#btn-clear-nai').onclick = () => clearKey('nai_key');
 
-/* ── 角色转译（直接出图） ── */
+/* ── 测试出图（直接出图） ── */
 function trRenderText(d) {
   const item = (label, val) => val
     ? '<div style="margin-bottom:10px"><div class="muted" style="font-size:12px;margin-bottom:2px">' + label + '</div><div class="mono" style="white-space:pre-wrap;word-break:break-all;background:hsl(222 18% 14%);border-radius:6px;padding:8px 10px">' + esc(val) + '</div></div>'
@@ -985,7 +986,7 @@ function trShowImage(d) {
   const img = $('#tr-image');
   const u = imgUrl(d.preview);
   img.onerror = () => showImgError(img, u);
-  // 远程图片禁用 Referer：上游 CDN 有防盗链，带酒馆地址的 Referer 一律 403
+  // 远程图片禁用 Referer：出图服务 CDN 有防盗链，带酒馆地址的 Referer 一律 403
   img.referrerPolicy = 'no-referrer';
   img.src = u;
   $('#tr-image-wrap').style.display = 'block';
@@ -1047,8 +1048,8 @@ async function runTranslate(generate) {
   const btnGen = $('#btn-translate-gen'), btnOnly = $('#btn-translate'), box = $('#tr-result');
   const labelGen = btnGen.textContent;
   btnGen.disabled = true; btnOnly.disabled = true;
-  if (generate) btnGen.textContent = '转译并出图中…（最长 320 秒）';
-  box.innerHTML = '<span class="muted">' + (generate ? '正在扩写并调用上游出图，请稍候…' : '正在扩写，请稍候…') + '</span>';
+  if (generate) btnGen.textContent = '出图中…（扩写 + 画图，最长 320 秒）';
+  box.innerHTML = '<span class="muted">' + (generate ? '正在扩写并出图，请稍候…' : '正在扩写，请稍候…') + '</span>';
   const payload = { text: text, generate: generate };
   const size = $('#tr-size').value;
   if (size) payload.size = size;
@@ -1056,7 +1057,7 @@ async function runTranslate(generate) {
   btnGen.disabled = false; btnOnly.disabled = false; btnGen.textContent = labelGen;
   if (!r.ok || !r.data || !r.data.success) {
     box.innerHTML = '<span class="err">' + esc((r.data && (r.data.error || r.data.message)) || ('HTTP ' + r.status)) + '</span>';
-    toast(generate ? '转译并出图失败' : '转译失败', 'bad');
+    toast(generate ? '测试出图失败' : '扩写失败', 'bad');
     return;
   }
   const d = r.data.data || {};
@@ -1081,7 +1082,7 @@ $('#btn-translate').onclick = () => runTranslate(false);
 // 再出一张：沿用上一次的提示词，不重新转译（避免画风漂移）
 $('#btn-regen').onclick = async () => {
   const prev = window.__tr;
-  if (!prev || !prev.data || !prev.data.prompt) { toast('请先转译一次', 'bad'); return; }
+  if (!prev || !prev.data || !prev.data.prompt) { toast('请先出一次图', 'bad'); return; }
   const btn = $('#btn-regen');
   btn.disabled = true; btn.textContent = '生成中…';
   const payload = {
