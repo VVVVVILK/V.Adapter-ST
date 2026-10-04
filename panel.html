@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>V. · NovelAI 协议适配</title>
+<title>V.Adapter 管理面板</title>
 <style>
 :root{
   --bg:#0f172a; --fg:hsl(210 20% 96%); --card:hsl(222 24% 12%);
@@ -35,12 +35,14 @@ a{color:var(--primary)}
 .brand-name{font-size:16px;font-weight:700}
 .brand-sub{margin-top:8px;font-size:10.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-fg)}
 .sidebar-nav{flex:1;padding:14px 12px;display:flex;flex-direction:column;gap:4px;overflow-y:auto}
-.nav-btn{position:relative;width:100%;display:flex;align-items:center;gap:11px;padding:9px 12px;border:none;border-radius:8px;background:transparent;color:var(--muted-fg);font-size:13.5px;font-weight:500;cursor:pointer;text-align:left;font-family:inherit;transition:background .15s,color .15s}
+.nav-btn{position:relative;width:100%;display:flex;flex-direction:column;gap:2px;padding:9px 12px;border:none;border-radius:8px;background:transparent;color:var(--muted-fg);font-size:13.5px;font-weight:500;cursor:pointer;text-align:left;font-family:inherit;transition:background .15s,color .15s}
+.nav-btn small{font-size:11px;font-weight:400;color:hsl(217 12% 48%)}
 .nav-btn:hover{background:hsl(222 18% 17% / .7);color:var(--fg)}
 .nav-btn.active{background:hsl(152 65% 45% / .1);color:var(--fg)}
-.nav-btn.active:before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);height:20px;width:3px;border-radius:999px;background:var(--primary)}
+.nav-btn.active small{color:hsl(217 12% 62%)}
+.nav-btn.active:before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);height:22px;width:3px;border-radius:999px;background:var(--primary)}
 .sidebar-foot{padding:14px 16px;border-top:1px solid hsl(222 14% 22% / .6);display:flex;flex-direction:column;gap:10px}
-.pill{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:600;color:var(--primary);background:hsl(160 84% 39% / .1);border:1px solid hsl(160 84% 39% / .2);padding:3px 9px;border-radius:999px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:600;color:var(--primary);background:hsl(160 84% 39% / .1);border:1px solid hsl(160 84% 39% / .2);padding:3px 9px;border-radius:999px;align-self:flex-start}
 .pill.off{color:var(--danger);background:hsl(0 72% 58% / .1);border-color:hsl(0 72% 58% / .25)}
 .pdot{width:6px;height:6px;border-radius:50%;background:currentColor}
 .foot-note{font-size:11px;color:var(--muted-fg);line-height:1.6}
@@ -56,9 +58,10 @@ a{color:var(--primary)}
 .page.active{display:flex}
 .page-head h1{font-size:24px;font-weight:700;letter-spacing:-.02em}
 .page-head p{margin-top:6px;font-size:13px;color:var(--muted-fg);line-height:1.6}
+.page-head p b{color:var(--fg)}
 .card{background:var(--card);border:1px solid var(--border);border-radius:calc(var(--radius) + .125rem);overflow:hidden}
 .card-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
-.card-title{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+.card-title{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .card-desc{margin-top:3px;font-size:12px;color:var(--muted-fg)}
 .card-body{padding:18px 20px}
 .grid{display:grid;gap:16px}
@@ -80,10 +83,14 @@ a{color:var(--primary)}
 .stat .k{margin-top:2px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-fg)}
 .stat.ok .v{color:var(--success)} .stat.bad .v{color:var(--danger)}
 label.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+label.field:last-child{margin-bottom:0}
 label.field .lab{font-size:12.5px;font-weight:600}
+label.field .lab .step{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;margin-right:6px;border-radius:50%;background:hsl(152 65% 45% / .15);color:var(--primary);font-size:11px;font-weight:800;vertical-align:1px}
 label.field .hint{font-size:11.5px;color:var(--muted-fg);line-height:1.55}
 input[type=text],input[type=password],select{width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:hsl(222 26% 9% / .8);color:var(--fg);font-size:13.5px;font-family:inherit;outline:none}
 input:focus,select:focus{border-color:hsl(152 65% 45% / .6);box-shadow:0 0 0 3px hsl(152 65% 45% / .12)}
+textarea{width:100%;background:hsl(222 18% 14%);color:var(--fg);border:1px solid hsl(222 18% 22%);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:13.5px;resize:vertical;outline:none}
+textarea:focus{border-color:hsl(152 65% 45% / .6);box-shadow:0 0 0 3px hsl(152 65% 45% / .12)}
 .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:8px;border:1px solid var(--border);background:var(--muted);color:var(--fg);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:filter .15s,opacity .15s}
 .btn:hover{filter:brightness(1.15)}
 .btn:disabled{opacity:.55;cursor:not-allowed}
@@ -103,11 +110,7 @@ td.prompt{max-width:260px;word-break:break-word}
 .code{display:block;padding:8px 10px;border-radius:8px;background:hsl(222 26% 8%);border:1px solid var(--border);font-size:12px;word-break:break-all}
 .muted{color:var(--muted-fg)}
 .err{color:var(--danger);font-size:12.5px;line-height:1.6;word-break:break-word}
-/* 作用范围提示：说明引擎配置的归属（本扩展 vs :8888 服务端插件） */
-.scope-note{margin:0 0 16px;padding:12px 15px;border-radius:10px;border:1px solid hsl(38 92% 50% / .35);background:hsl(38 92% 50% / .08);font-size:12.5px;line-height:1.75}
-.scope-note b{color:var(--warning)}
 .preview{margin-top:12px;max-width:100%;border-radius:10px;border:1px solid var(--border);display:none}
-/* 图片加载失败的可见占位：附原始地址，便于判断是路径问题还是文件问题 */
 .img-broken{display:block;margin-top:12px;padding:12px 14px;font-size:12px;line-height:1.65;color:var(--danger);background:hsl(0 72% 58% / .08);border:1px dashed hsl(0 72% 58% / .35);border-radius:10px;word-break:break-all}
 .img-broken b{display:block;margin-bottom:4px;font-size:13px}
 /* toast */
@@ -121,11 +124,45 @@ td.prompt{max-width:260px;word-break:break-word}
 .mask-card{width:100%;max-width:390px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:26px 24px;box-shadow:0 20px 60px rgb(0 0 0 / .5)}
 .mask-card h2{font-size:18px;margin-bottom:8px}
 .mask-card p{font-size:12.5px;color:var(--muted-fg);line-height:1.65;margin-bottom:16px}
-/* 需要用户看清的说明块：这条链路「能做什么、做不到什么」必须在配上游的地方就说清。
-   字号与正文同为 14px、行高更松 —— 用户明确要求「看得清清楚楚」 */
-.notice{margin-bottom:16px;padding:16px 18px;border-radius:10px;border:1px solid hsl(38 92% 50% / .45);background:hsl(38 92% 50% / .09);font-size:14px;line-height:1.9;color:var(--fg)}
-.notice:last-child{margin-bottom:0}
-.notice b{color:var(--warning)}
+/* ── 以下为本次可用性优化新增的组件 ── */
+/* 名词解释：虚线下划线的词，点开有白话解释 */
+.term{font-style:normal;border-bottom:1px dashed hsl(200 80% 55% / .55);cursor:help}
+.term-pop{position:fixed;z-index:70;max-width:340px;padding:12px 14px;border-radius:10px;border:1px solid hsl(200 80% 55% / .45);background:hsl(222 26% 10% / .98);box-shadow:0 14px 40px rgb(0 0 0 / .5);font-size:12.5px;line-height:1.7;color:var(--fg)}
+.term-pop b{color:var(--info);display:block;margin-bottom:4px;font-size:13px}
+.term-pop .close{margin-top:8px;font-size:11px;color:var(--muted-fg)}
+/* 折叠的详解块：默认收起，页面保持安静 */
+details.explain{border:1px solid var(--border);border-radius:10px;background:hsl(222 26% 9% / .5);margin:10px 0}
+details.explain summary{padding:10px 14px;font-size:12.5px;font-weight:600;color:var(--muted-fg);cursor:pointer;list-style:none;user-select:none}
+details.explain summary::-webkit-details-marker{display:none}
+details.explain summary:before{content:"▸ ";color:var(--info)}
+details.explain[open] summary:before{content:"▾ "}
+details.explain[open] summary{border-bottom:1px dashed hsl(222 14% 22% / .7)}
+details.explain .explain-body{padding:12px 16px;font-size:13px;line-height:1.9;color:var(--fg)}
+details.explain .explain-body b{color:var(--info)}
+details.explain.warn{border-color:hsl(38 92% 50% / .4)}
+details.explain.warn summary{color:hsl(38 92% 60%)}
+details.explain.warn .explain-body b{color:var(--warning)}
+/* 快速开始清单 */
+.qs-step{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px dashed hsl(222 14% 22% / .7)}
+.qs-step:last-child{border-bottom:none}
+.qs-dot{flex:none;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;margin-top:1px}
+.qs-step.done .qs-dot{background:hsl(142 71% 45% / .18);color:var(--success)}
+.qs-step.todo .qs-dot{background:hsl(38 92% 50% / .15);color:var(--warning)}
+.qs-step .qs-body{flex:1;min-width:0}
+.qs-step .qs-title{font-size:13.5px;font-weight:600}
+.qs-step.done .qs-title{color:var(--muted-fg)}
+.qs-step .qs-hint{margin-top:3px;font-size:12px;color:var(--muted-fg);line-height:1.6}
+.qs-step .qs-act{margin-top:8px}
+/* 卡片右上角的状态角标 */
+.chip{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
+.chip.must{color:var(--warning);background:hsl(38 92% 50% / .12);border:1px solid hsl(38 92% 50% / .35)}
+.chip.adv{color:var(--muted-fg);background:hsl(222 14% 22% / .5);border:1px solid var(--border)}
+.chip.opt{color:var(--info);background:hsl(200 80% 55% / .1);border:1px solid hsl(200 80% 55% / .3)}
+/* 设置页搜索框 */
+.search-box{position:relative}
+.search-box input{padding-left:34px}
+.search-box .icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted-fg);pointer-events:none}
+.search-empty{padding:14px;font-size:12.5px;color:var(--muted-fg);display:none}
 </style>
 </head>
 <body>
@@ -153,16 +190,16 @@ td.prompt{max-width:260px;word-break:break-word}
       <div class="brand">
         <div class="brand-mark">V</div>
         <div>
-          <div class="brand-name">V.</div>
+          <div class="brand-name">V.Adapter</div>
         </div>
       </div>
-      <div class="brand-sub">NovelAI 协议适配服务 · VILK</div>
+      <div class="brand-sub">OpenAI→NovelAI 协议网关 · VILK</div>
     </div>
     <nav class="sidebar-nav">
-      <button class="nav-btn active" data-page="overview">运行总览</button>
-      <button class="nav-btn" data-page="translate">角色转译</button>
-      <button class="nav-btn" data-page="logs">生成记录</button>
-      <button class="nav-btn" data-page="settings">设置中心</button>
+      <button class="nav-btn active" data-page="overview">运行总览<small>第一次用？从这页开始</small></button>
+      <button class="nav-btn" data-page="translate">角色转译<small>一句话，直接出一张图</small></button>
+      <button class="nav-btn" data-page="logs">生成记录<small>出过哪些图、成没成功</small></button>
+      <button class="nav-btn" data-page="settings">设置中心<small>填上游地址和密钥的地方</small></button>
     </nav>
     <div class="sidebar-foot">
       <span class="pill" id="pill"><span class="pdot"></span><span id="pill-text">在线</span></span>
@@ -186,76 +223,121 @@ td.prompt{max-width:260px;word-break:break-word}
       <section class="page active" id="page-overview">
         <div class="page-head">
           <h1>运行总览</h1>
-          <p>服务状态、当前生效配置（Key 脱敏）与最近生成记录。客户端通过 NovelAI 渠道调用本服务的 <span class="mono">/ai/</span> 端点。</p>
+          <p><b>这一页是干嘛的：</b>看当前配置有没有配好、出图正不正常。第一次使用，照着下面三步走一遍就能出图。</p>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">三步开始出图</div><div class="card-desc">跟着状态提示走，全部打勾就能用</div></div></div>
+          <div class="card-body" id="qs-body">
+            <div class="qs-step" id="qs-step-1">
+              <div class="qs-dot">1</div>
+              <div class="qs-body">
+                <div class="qs-title">填好上游画图 API（地址、密钥、模型名）</div>
+                <div class="qs-hint">图是上游模型画的，本插件只负责转接。<span class="muted">术语：这就是所谓「OpenAI 兼容生图 API」。</span></div>
+                <div class="qs-act"><button class="btn sm" id="qs-goto-settings">去填写 →</button></div>
+              </div>
+            </div>
+            <div class="qs-step" id="qs-step-2">
+              <div class="qs-dot">2</div>
+              <div class="qs-body">
+                <div class="qs-title">点一次「测试连接」，确认能真的出图</div>
+                <div class="qs-hint">会用当前配置实拍一张测试图，成功会显示在下方。</div>
+              </div>
+            </div>
+            <div class="qs-step" id="qs-step-3">
+              <div class="qs-dot">3</div>
+              <div class="qs-body">
+                <div class="qs-title">（可选）设一个面板密码</div>
+                <div class="qs-hint">只在本机自己用可以跳过；面板部署在公网时建议设置。</div>
+                <div class="qs-act"><button class="btn sm ghost" id="qs-goto-adv">去设置 →</button></div>
+              </div>
+            </div>
+            <div class="qs-step done" id="qs-step-use">
+              <div class="qs-dot">✓</div>
+              <div class="qs-body">
+                <div class="qs-title">然后怎么用？</div>
+                <div class="qs-hint">
+                  · 在酒馆聊天框输入 <span class="mono">/vgen 一只橘猫趴在窗台上</span> 直接出图；<br>
+                  · 或到「角色转译」页输入一句话出图；<br>
+                  · <b>V.Canvas</b>：装好后地址留空即自动直连（读的是<b>服务端那一份配置</b>，在 <span class="mono">:8888</span> 面板改）；<br>
+                  · 第三方 NovelAI 插件 / 外部客户端：渠道 URL 填 <span class="mono">http://&lt;本机IP&gt;:8888</span>，Key 填「NovelAI 网关」里的接入密钥（见下方对接卡片）。
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="grid c3">
           <div class="stat"><div class="v" id="st-version">-</div><div class="k">版本</div></div>
-          <div class="stat"><div class="v" id="st-uptime">-</div><div class="k">运行时长</div></div>
-          <div class="stat ok"><div class="v" id="st-success">0</div><div class="k">成功 / 失败</div></div>
-        </div>
-
-        <div class="grid c2">
-          <div class="card">
-            <div class="card-head"><div><div class="card-title">服务状态</div><div class="card-desc">监听地址与启动信息</div></div></div>
-            <div class="card-body">
-              <div class="kv"><span class="k">监听地址</span><span class="v mono" id="st-listen">-</span></div>
-              <div class="kv"><span class="k">启动时间</span><span class="v mono" id="st-started">-</span></div>
-              <div class="kv"><span class="k">NovelAI key 校验</span><span class="v" id="st-naikey">-</span></div>
-              <div class="kv"><span class="k">聊天生图兜底</span><span class="v" id="st-chatfallback">-</span></div>
-              <div class="kv"><span class="k">面板密码</span><span class="v" id="st-panelpw">-</span></div>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-head"><div><div class="card-title">OpenAI 兼容 API</div><div class="card-desc">OpenAI 兼容生图 API（Key 脱敏显示）</div></div></div>
-            <div class="card-body">
-              <div class="kv"><span class="k">API 地址</span><span class="v mono" id="st-qwenurl">-</span></div>
-              <div class="kv"><span class="k">模型</span><span class="v mono" id="st-qwenmodel">-</span></div>
-              <div class="kv"><span class="k">API Key</span><span class="v mono" id="st-qwenkey">-</span></div>
-              <div class="kv"><span class="k">默认尺寸</span><span class="v mono" id="st-defaultsize">-</span></div>
-            </div>
-          </div>
+          <div class="stat"><div class="v" id="st-uptime">-</div><div class="k">已运行</div></div>
+          <div class="stat ok"><div class="v" id="st-success">0</div><div class="k">成功 / 失败次数</div></div>
         </div>
 
         <div class="card">
           <div class="card-head">
-            <div><div class="card-title">客户端对接信息</div><div class="card-desc">把下面地址填进 NovelAI 渠道（不要带 /ai 后缀，客户端会自动补）</div></div>
-          </div>
-          <div class="card-body">
-            <div class="kv"><span class="k">NovelAI 渠道 URL</span><span class="v"><code class="code mono" id="st-baseurl">-</code></span></div>
-            <div class="kv"><span class="k">NovelAI 渠道 Key</span><span class="v" id="st-naikey-hint">-</span></div>
-            <div class="kv"><span class="k">实际端点</span><span class="v mono muted">POST /ai/generate-image　·　GET /ai/user/subscription　·　模型名可任选（服务端忽略）</span></div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-head">
-            <div><div class="card-title">测试连接</div><div class="card-desc">实调一次上游生图，验证整条链路（不影响线上配置）</div></div>
+            <div><div class="card-title">测试连接 <span class="chip must">先做这个</span></div>
+            <div class="card-desc">用当前配置真实画一张测试图，验证整条链路通不通（不会改动配置）</div></div>
             <div class="row">
-              <button class="btn ghost sm" id="btn-test-advanced">高级选项</button>
+              <button class="btn ghost sm" id="btn-test-advanced">换参数试</button>
               <button class="btn primary" id="btn-test">测试连接</button>
             </div>
           </div>
           <div class="card-body">
             <div id="test-advanced" style="display:none">
               <div class="grid c2">
-                <label class="field"><span class="lab">覆盖 API 地址（可选）</span><input type="text" id="t-url" placeholder="留空 = 用当前设置"></label>
-                <label class="field"><span class="lab">覆盖模型（可选）</span><input type="text" id="t-model" placeholder="留空 = 用当前设置"></label>
-                <label class="field"><span class="lab">覆盖 Key（可选）</span><input type="password" id="t-key" placeholder="留空 = 用当前设置"></label>
-                <label class="field"><span class="lab">覆盖尺寸（可选）</span><input type="text" id="t-size" placeholder="如 1024x1024"></label>
+                <label class="field"><span class="lab">临时用这个 API 地址</span><input type="text" id="t-url" placeholder="留空 = 用下面配置里的"></label>
+                <label class="field"><span class="lab">临时用这个模型</span><input type="text" id="t-model" placeholder="留空 = 用下面配置里的"></label>
+                <label class="field"><span class="lab">临时用这个密钥</span><input type="password" id="t-key" placeholder="留空 = 用下面配置里的"></label>
+                <label class="field"><span class="lab">临时用这个尺寸</span><input type="text" id="t-size" placeholder="如 1024x1024"></label>
               </div>
+              <div class="muted" style="font-size:12px;margin-bottom:10px">这里的临时参数只对本次测试生效，不会保存。</div>
             </div>
-            <div id="test-result" class="muted">尚未测试。</div>
+            <div id="test-result" class="muted">还没测过。点右上角「测试连接」。</div>
             <img id="test-preview" class="preview" alt="测试生成结果">
           </div>
         </div>
 
+        <div class="grid c2">
+          <div class="card">
+            <div class="card-head"><div><div class="card-title">当前配置</div><div class="card-desc">出图用的是这份（密钥只显示开头几位）</div></div></div>
+            <div class="card-body">
+              <div class="kv"><span class="k">上游 API 地址</span><span class="v mono" id="st-qwenurl">-</span></div>
+              <div class="kv"><span class="k">画图模型</span><span class="v mono" id="st-qwenmodel">-</span></div>
+              <div class="kv"><span class="k">API 密钥</span><span class="v mono" id="st-qwenkey">-</span></div>
+              <div class="kv"><span class="k">默认图片尺寸</span><span class="v mono" id="st-defaultsize">-</span></div>
+              <div class="kv"><span class="k">出图方式</span><span class="v" id="st-chatfallback">-</span></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><div><div class="card-title">NovelAI 网关（:8888）</div><div class="card-desc">本服务的对外身份：其他插件 / 客户端从这里连进来</div></div></div>
+            <div class="card-body">
+              <div class="kv"><span class="k">监听地址</span><span class="v mono" id="st-listen">-</span></div>
+              <div class="kv"><span class="k">接入密钥校验</span><span class="v" id="st-naikey">-</span></div>
+              <div class="kv"><span class="k">面板密码</span><span class="v" id="st-panelpw">-</span></div>
+              <div class="kv"><span class="k">对外端点</span><span class="v mono muted">POST /ai/generate-image · GET /ai/user/subscription</span></div>
+            </div>
+          </div>
+        </div>
+
         <div class="card">
-          <div class="card-head"><div><div class="card-title">最近生成记录</div><div class="card-desc">最新 5 条；完整记录见「生成记录」页</div></div>
+          <div class="card-head">
+            <div><div class="card-title">客户端怎么接（把本服务当 NovelAI 渠道来连）</div>
+            <div class="card-desc">V.Canvas、第三方 NAI 插件、外部 NovelAI 客户端都照这里填</div></div>
+          </div>
+          <div class="card-body">
+            <div class="kv"><span class="k">NovelAI 渠道 URL</span><span class="v"><code class="code mono" id="st-gw-url">-</code></span></div>
+            <div class="kv"><span class="k">NovelAI 渠道 Key</span><span class="v" id="st-gw-key">-</span></div>
+            <div class="kv"><span class="k">模型名</span><span class="v muted">随便填 —— 网关按自己的上游出图，客户端填的模型名会被忽略</span></div>
+            <div class="kv"><span class="k">两份配置别改错</span><span class="v">经 <span class="mono">:8888</span> 连进来的客户端（<b>V.Canvas</b>、第三方 NovelAI 插件）读的是<b>服务端那一份</b>配置（<span class="mono">&lt;SillyTavern&gt;\plugins\V.Adapter\data\</span>，在 <span class="mono">:8888</span> 的管理面板里改）；本面板这份只作用于 <span class="mono">/vgen</span> 命令与「角色转译」。</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">最近生成记录</div><div class="card-desc">最新 5 条；全部记录见「生成记录」页</div></div>
             <button class="btn ghost sm" id="btn-refresh-overview">刷新</button></div>
           <div class="card-body" style="padding:0">
-            <table><thead><tr><th>时间</th><th>类型</th><th>尺寸</th><th>链路</th><th>耗时</th><th>结果</th><th>提示词</th></tr></thead>
+            <table><thead><tr><th>时间</th><th>类型</th><th>尺寸</th><th><span class="term" data-term="via">链路</span></th><th>耗时</th><th>结果</th><th>提示词</th></tr></thead>
             <tbody id="recent-rows"><tr><td colspan="7" class="muted" style="padding:14px 10px">暂无记录</td></tr></tbody></table>
           </div>
         </div>
@@ -265,104 +347,116 @@ td.prompt{max-width:260px;word-break:break-word}
       <section class="page" id="page-settings">
         <div class="page-head">
           <h1>设置中心</h1>
-          <p>保存后立即热生效并写入 <span class="mono">data/settings.json</span>（重启不丢失）。Key 输入框留空 = 不修改；清除请点对应「清除」按钮。</p>
-        </div>
-
-        <div class="scope-note">
-          <b>作用范围：</b>本页配置只对<b>本扩展</b>的 <span class="mono">/vgen</span> 命令与角色转译出图生效。
-          经 <span class="mono">:8888</span> 端口出图的客户端（V.Canvas、第三方 NAI 插件）读取的是
-          <b>服务端插件</b>那一份配置（<span class="mono">&lt;SillyTavern&gt;\plugins\V.Adapter\data\</span>）。
-          两条管道各有一份配置，需分别设置。
+          <p><b>这一页是干嘛的：</b>填「图由谁画」——上游 API 的地址、密钥和模型。<b>填完要点下面的「保存设置」才生效。</b>
+          <span id="scope-sentence">本页配置只作用于 <span class="mono">/vgen</span> 命令和「角色转译」；V.Canvas 等客户端用的是服务端另一份配置。</span></p>
         </div>
 
         <div class="card">
-          <div class="card-head"><div><div class="card-title">OpenAI 兼容 API</div><div class="card-desc">OpenAI 兼容生图 API</div></div></div>
+          <div class="card-head">
+            <div><div class="card-title">第一步 · 上游画图 API <span class="chip must">必须填</span></div>
+            <div class="card-desc">随便找一个「OpenAI 兼容」的生图服务或反代都行</div></div>
+          </div>
           <div class="card-body">
-            <div class="notice">
-              <b>这条链路是怎么画图的 —— 先看清，能省掉大量困惑</b>
-              <br>本服务把 NovelAI 协议的请求转成 <b>OpenAI 兼容接口</b>发出去，
-              <b>图是由上游模型生成的</b>，本服务不参与作画。
-              <br>· 上游是<b>生图模型</b>（qwen-image-2.0、dall-e-3 这类）：按提示词出图，尺寸等参数直接生效。
-              <br>· 上游是<b>聊天画图模型</b>（反代的 qwen3.8-max 这类）：本质是<b>多模态模型在画</b>，
-              因此会出现<b>基于指令的拒答</b> —— 这一类拒答<b>有机会</b>被提示词前缀影响
-              （就是客户端里那个「生图破限词」）。
-              <br>⚠️ 但<b>平台级安全过滤不受提示词影响</b>：若上游服务商在服务端就拦掉请求、
-              或对出图结果再做一次安全分类，提示词怎么写都不会放行。所以「破限」是<b>有机会、不保证</b>，
-              别理解成一定能解掉审核。反复尝试还可能触发上游风控，风险由使用者自行承担。
-            </div>
-            <label class="field"><span class="lab">API 地址</span>
+            <label class="field"><span class="lab"><span class="step">1</span>API 地址</span>
               <input type="text" id="s-qwen-url" placeholder="http://127.0.0.1:4000/v1">
-              <span class="hint">OpenAI 兼容生图接口的 base url，通常带 /v1 结尾。</span></label>
-            <label class="field"><span class="lab">API Key</span>
+              <span class="hint">一般是中转/反代给你的地址，通常以 <span class="mono">/v1</span> 结尾。不知道填什么，看你用的 API 服务商的文档。</span></label>
+            <label class="field"><span class="lab"><span class="step">2</span>API 密钥</span>
               <input type="password" id="s-qwen-key" placeholder="（未设置）" autocomplete="new-password">
-              <span class="hint" id="hint-qwen-key">留空 = 不修改当前 Key。</span></label>
-            <label class="field"><span class="lab">模型名</span>
-              <input type="text" id="s-qwen-model" placeholder="qwen3.8-max"></label>
-            <label class="field"><span class="lab">默认尺寸</span>
+              <span class="hint" id="hint-qwen-key">留空 = 不修改当前密钥。</span>
+              <span class="row" style="margin-top:2px"><button class="btn danger sm" id="btn-clear-qwen">清除已保存的密钥</button></span></label>
+            <label class="field"><span class="lab"><span class="step">3</span>画图模型名</span>
+              <input type="text" id="s-qwen-model" placeholder="qwen3.8-max">
+              <span class="hint">照你上游服务提供的模型名填。专门画图的模型如 <span class="mono">qwen-image</span>、<span class="mono">dall-e-3</span>；反代的聊天模型也能画（见下方「出图方式」）。</span></label>
+            <label class="field"><span class="lab"><span class="step">4</span>默认图片尺寸（一般不用改）</span>
               <input type="text" id="s-default-size" placeholder="1024x1024">
-              <span class="hint">客户端没传尺寸、或上游拒绝其尺寸时的兜底，格式「宽x高」。</span></label>
+              <span class="hint">格式「宽x高」。客户端没指定尺寸时的兜底值。</span></label>
           </div>
         </div>
 
         <div class="card">
-          <div class="card-head"><div><div class="card-title">NovelAI 渠道与兼容</div><div class="card-desc">客户端对接参数与降级策略</div></div></div>
+          <div class="card-head">
+            <div><div class="card-title">第二步 · 出图方式 <span class="chip must">按你的上游选</span></div>
+            <div class="card-desc">选错的症状是「一直失败」——两张快选按钮可以替你选好</div></div>
+          </div>
           <div class="card-body">
-            <label class="field"><span class="lab">NovelAI 接入 Key</span>
-              <input type="password" id="s-nai-key" placeholder="（不校验）" autocomplete="new-password">
-              <span class="hint" id="hint-nai-key">留空 = 不修改当前 Key。此值即客户端 NovelAI 渠道要填的 Key；清空后则任意 key 均可调用。</span></label>
-            <label class="field"><span class="lab">生图链路（按上游模型类型选择）</span>
+            <div class="row" style="margin-bottom:12px">
+              <span class="muted" style="font-size:12.5px">我的上游是：</span>
+              <button class="btn sm ghost" id="btn-pick-chatmodel">聊天模型（反代画的图，慢但稳）→ chat_only</button>
+              <button class="btn sm ghost" id="btn-pick-imgmodel">专门的画图模型（dall-e-3 等，快）→ auto</button>
+            </div>
+            <label class="field"><span class="lab">出图方式</span>
               <select id="s-chat-fallback">
-                <option value="auto">auto — 先试标准生图接口，失败自动转聊天接口（推荐；两类上游都能用）</option>
-                <option value="off">off — 只走标准生图接口，失败不兜底。适用于正经 OpenAI 生图上游（生图模型）</option>
-                <option value="openai">openai — 只走标准 OpenAI 生图接口，失败即报错（效果与 off 相同）</option>
-                <option value="chat_only">chat_only — 只走聊天接口生图。仅适用于「在聊天里画图」的模型；生图模型走此路会返回 400</option>
+                <option value="auto">自动（推荐）—— 先走标准画图接口，不行自动改用聊天画图</option>
+                <option value="chat_only">只走聊天画图 —— 适合反代的聊天模型（默认；生图模型走这条会失败）</option>
+                <option value="off">只走标准画图接口，失败不重试 —— 适合专门的画图模型</option>
+                <option value="openai">标准 OpenAI 画图接口（效果与上一项基本相同）</option>
               </select>
-              <span class="hint">怎么选：上游模型是<b>生图模型</b>（qwen-image-2.0、dall-e-3 这类，走 /images/generations，出图约 6 秒/张）→ 选 auto / off / openai；上游是<b>聊天画图模型</b>（反代的 qwen3.8-max 这类，标准接口稳定 500，只能靠聊天出图，约 30~60 秒/张）→ 选 auto 或 chat_only。</span></label>
+              <span class="hint">两条路的区别：标准接口快（约 6 秒/张）；聊天画图慢（30~60 秒/张）但反代场景稳定。
+              不确定就选「自动」。 <span class="term" data-term="fuse">熔断</span>：标准接口连续失败 3 次会自动停撞 30 分钟，改设置后自动恢复。</span></label>
+            <div class="row" style="margin-top:14px">
+              <button class="btn primary" id="btn-save">保存设置</button>
+              <span class="muted" style="font-size:12px">改完这里（以及上面的第一步）都要点一下才会保存</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div><div class="card-title">第三步 · NovelAI 网关 <span class="chip opt">给其他插件 / 客户端连的入口</span></div>
+            <div class="card-desc">本服务把上面配的 OpenAI 上游包装成 NovelAI 协议，监听 <span class="mono">:8888</span> 对外提供 —— V.Canvas、第三方 NAI 插件、NovelAI 客户端都从这里连</div></div>
+          </div>
+          <div class="card-body">
             <label class="field"><span class="lab">监听地址</span>
               <input type="text" id="s-listen" placeholder="0.0.0.0:8888">
-              <span class="hint">修改后需重启服务生效（服务器部署填 0.0.0.0:端口）。</span></label>
-            <div class="row">
-              <button class="btn primary" id="btn-save">保存设置</button>
-              <button class="btn danger sm" id="btn-clear-qwen">清除 API 密钥</button>
-              <button class="btn danger sm" id="btn-clear-nai">清除接入密钥</button>
-            </div>
+              <span class="hint">服务端部署时对外监听的地址与端口（<span class="mono">0.0.0.0</span> = 所有网卡可连，改后需重启服务生效）；扩展内置模式仅保存、不实际监听。客户端 URL 填 <span class="mono">http://&lt;本机IP&gt;:8888</span>（不要带 /ai）。</span></label>
+            <label class="field"><span class="lab">接入密钥（客户端 NovelAI 渠道要填的 Key）</span>
+              <input type="password" id="s-nai-key" placeholder="（不校验）" autocomplete="new-password">
+              <span class="hint" id="hint-nai-key">留空 = 不修改。客户端渠道的 Key 必须与本值一致，改了记得两边同步；清空后随便填什么都能连 —— 公网部署建议务必设置。</span>
+              <span class="row" style="margin-top:2px"><button class="btn danger sm" id="btn-clear-nai">清除接入密钥</button></span></label>
           </div>
         </div>
 
-        <div class="card">
-          <div class="card-head"><div><div class="card-title">面板密码</div><div class="card-desc">首次可免密进入；设置后管理端点需登录（会话 24h）</div></div></div>
-          <div class="card-body">
-            <label class="field"><span class="lab">新密码</span>
-              <input type="password" id="s-panel-pw" placeholder="至少 4 位" autocomplete="new-password">
-              <span class="hint" id="hint-panel-pw">未设置密码时，任何人访问本面板都能改配置；公网部署请务必设置。</span></label>
+        <details class="explain" id="adv-block">
+          <summary>高级选项（一般不用动）：面板密码</summary>
+          <div class="explain-body">
+            <label class="field"><span class="lab">新面板密码（至少 4 位）</span>
+              <input type="password" id="s-panel-pw" placeholder="不填并点「设置」= 关闭密码" autocomplete="new-password">
+              <span class="hint" id="hint-panel-pw">未设密码时，任何能打开本面板的人都能改配置；公网部署请务必设置。</span></label>
             <div class="row">
               <button class="btn" id="btn-set-pw">设置 / 修改密码</button>
               <button class="btn danger sm" id="btn-close-pw">关闭面板密码</button>
             </div>
           </div>
+        </details>
+
+        <div class="search-box" style="margin-top:2px">
+          <span class="icon">🔍</span>
+          <input type="text" id="settings-search" placeholder="在这个页面里找设置项…（输入关键字，如「密钥」「尺寸」）">
         </div>
+        <div class="search-empty" id="search-empty">没有匹配的设置项。</div>
       </section>
 
       <!-- 角色转译 -->
       <section class="page" id="page-translate">
         <div class="page-head">
           <h1>角色转译</h1>
-          <p>输入一句角色或场景描述，直接出图。转译出来的提示词会一并展示，可复制走或微调后再出。</p>
+          <p><b>这一页是干嘛的：</b>输入一句话（比如一个角色名），它先帮你扩写成完整提示词，再直接出一张图。图只在这里预览，<b>不会进聊天记录</b>；
+          想把图发进聊天请用酒馆里的 <span class="mono">/vgen</span> 命令。</p>
         </div>
         <div class="card">
-          <div class="card-head"><div><div class="card-title">输入描述</div><div class="card-desc">支持自然语言，如「哆啦A梦里面的野比玉子」</div></div></div>
+          <div class="card-head"><div><div class="card-title">输入描述</div><div class="card-desc">会先用模型扩写成提示词（这一步叫<span class="term" data-term="expand">转译</span>），再出图</div></div></div>
           <div class="card-body">
-            <textarea id="tr-text" rows="4" placeholder="例如：哆啦A梦里面的野比玉子" style="width:100%;background:hsl(222 18% 14%);color:var(--fg);border:1px solid hsl(222 18% 22%);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:13.5px;resize:vertical"></textarea>
+            <textarea id="tr-text" rows="4" placeholder="例如：哆啦A梦里面的野比玉子"></textarea>
             <div class="row" style="margin-top:10px;flex-wrap:wrap;align-items:center;gap:10px">
               <button class="btn primary" id="btn-translate-gen">转译并出图</button>
-              <button class="btn ghost" id="btn-translate">仅转译文字</button>
-              <button class="btn ghost sm" id="btn-copy-translate">复制文本</button>
+              <button class="btn ghost" id="btn-translate">只扩写文字，不出图</button>
+              <button class="btn ghost sm" id="btn-copy-translate">复制扩写结果</button>
             </div>
             <div class="row" style="margin-top:10px;flex-wrap:wrap;align-items:center;gap:14px">
               <label class="row" style="gap:6px;font-size:12.5px;align-items:center;width:auto">
                 <span class="muted">尺寸</span>
                 <select id="tr-size" style="width:auto;min-width:190px">
-                  <option value="">自动（用转译推荐尺寸）</option>
+                  <option value="">自动（用扩写推荐的尺寸）</option>
                   <option value="832x1216">832x1216 · 竖构图</option>
                   <option value="1216x832">1216x832 · 横构图</option>
                   <option value="1024x1024">1024x1024 · 方图</option>
@@ -375,7 +469,7 @@ td.prompt{max-width:260px;word-break:break-word}
               <img id="tr-image" alt="角色转译出图结果" style="display:block;max-width:100%;border-radius:10px;border:1px solid var(--border)">
               <div class="row" style="margin-top:10px;flex-wrap:wrap;align-items:center;gap:10px">
                 <a class="btn ghost sm" id="btn-dl-image" download="translate.png">下载图片</a>
-                <button class="btn ghost sm" id="btn-regen">再出一张（同提示词）</button>
+                <button class="btn ghost sm" id="btn-regen">再出一张（沿用同一段提示词，避免画风突变）</button>
                 <span class="muted" id="tr-image-info" style="font-size:12.5px"></span>
               </div>
             </div>
@@ -388,19 +482,19 @@ td.prompt{max-width:260px;word-break:break-word}
       <section class="page" id="page-logs">
         <div class="page-head">
           <h1>生成记录</h1>
-          <p>最近 200 条生成/测试记录（内存保存，重启清空）。</p>
+          <p><b>这一页是干嘛的：</b>出图哪里出了问题，最先来这里看。每次生成/测试都记一行，含失败原因。最近 200 条，重启后清空。</p>
         </div>
         <div class="card">
           <div class="card-head">
             <div><div class="card-title">记录</div><div class="card-desc" id="logs-count">-</div></div>
             <div class="row">
-              <label class="row" style="gap:6px;font-size:12.5px"><input type="checkbox" id="logs-auto" style="width:auto"> 自动刷新</label>
+              <label class="row" style="gap:6px;font-size:12.5px"><input type="checkbox" id="logs-auto" style="width:auto"> 停在本页时自动刷新</label>
               <button class="btn ghost sm" id="btn-refresh-logs">刷新</button>
               <button class="btn danger sm" id="btn-clear-logs">清空</button>
             </div>
           </div>
           <div class="card-body" style="padding:0">
-            <table><thead><tr><th>时间</th><th>类型</th><th>尺寸</th><th>链路</th><th>耗时</th><th>结果</th><th>提示词</th><th>错误</th></tr></thead>
+            <table><thead><tr><th>时间</th><th>类型</th><th>尺寸</th><th><span class="term" data-term="via">链路</span></th><th>耗时</th><th>结果</th><th>提示词</th><th>失败原因</th></tr></thead>
             <tbody id="log-rows"><tr><td colspan="8" class="muted" style="padding:14px 10px">暂无记录</td></tr></tbody></table>
           </div>
         </div>
@@ -416,6 +510,13 @@ td.prompt{max-width:260px;word-break:break-word}
 'use strict';
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ── 名词白话解释：点带虚线的词弹出 ── */
+const TERMS = {
+  via: { t: '链路（走的哪条路）', d: '一次出图实际走的通道。images = 标准画图接口（快）；chat = 聊天画图（慢但稳）；「images→chat兜底」= 先试快的，失败后自动换的。' },
+  fuse: { t: '熔断', d: '标准接口连续失败 3 次后，插件先假设它坏了，30 分钟内不再去撞它、直接走聊天画图。改过设置或换上游后会自动恢复正常探测。' },
+  expand: { t: '转译（扩写）', d: '把「哆啦A梦里的野比玉子」这样一句话，交给文字模型补充成一段完整的画面描述（外貌、服装、场景、画风），再拿去出图。' },
+};
 
 /* ── 图片地址解析 ──
    本页位于 /scripts/extensions/third-party/<扩展>/panel.html，而酒馆返回的图片地址是
@@ -491,6 +592,57 @@ function humanUptime(sec) {
   return sec + '秒';
 }
 
+/* ── 名词解释弹层 ── */
+let termPop = null;
+function closeTermPop() { if (termPop) { termPop.remove(); termPop = null; } }
+document.addEventListener('click', e => {
+  const t = e.target.closest('.term');
+  closeTermPop();
+  if (!t) return;
+  const info = TERMS[t.dataset.term];
+  if (!info) return;
+  const pop = document.createElement('div');
+  pop.className = 'term-pop';
+  pop.innerHTML = '<b>' + esc(info.t) + '</b>' + esc(info.d) + '<div class="close">点击空白处关闭</div>';
+  document.body.appendChild(pop);
+  const r = t.getBoundingClientRect();
+  const pw = Math.min(340, window.innerWidth - 24);
+  let x = Math.min(Math.max(8, r.left), window.innerWidth - pw - 8);
+  let y = r.bottom + 8;
+  if (y + pop.offsetHeight > window.innerHeight - 8) y = Math.max(8, r.top - pop.offsetHeight - 8);
+  pop.style.left = x + 'px';
+  pop.style.top = y + 'px';
+  termPop = pop;
+  e.stopPropagation();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeTermPop(); });
+// 页面滚动时收起弹层，避免弹层与词条脱节
+window.addEventListener('scroll', closeTermPop, { passive: true });
+
+/* ── 页面切换 ── */
+function gotoPage(name) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.page === name));
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + name));
+  if (name === 'logs') loadLogs();
+  toggleSidebar(false);
+}
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.onclick = () => gotoPage(btn.dataset.page);
+});
+$('#qs-goto-settings').onclick = () => { gotoPage('settings'); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+$('#qs-goto-adv').onclick = () => {
+  gotoPage('settings');
+  const adv = $('#adv-block');
+  if (adv) { adv.open = true; adv.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+};
+
+/* 移动端：侧边栏抽屉 */
+function toggleSidebar(open) {
+  document.querySelector('.sidebar').classList.toggle('open', open);
+  $('#mask-mobile').classList.toggle('show', open);
+}
+$('#btn-menu').onclick = () => toggleSidebar(true);
+
 /* ── 登录 / 首次设密 ── */
 function showMask(mode) {
   const mask = $('#mask');
@@ -500,7 +652,7 @@ function showMask(mode) {
   $('#mask-pw').value = '';
   if (mode === 'setup') {
     $('#mask-title').textContent = '首次使用：建议设置面板密码';
-    $('#mask-desc').textContent = '当前面板无密码，任何能访问本服务的人都能修改配置。可先跳过，稍后在「设置中心」设置。';
+    $('#mask-desc').textContent = '当前面板无密码，任何能访问本服务的人都能修改配置。可先跳过，稍后在「设置中心 → 高级选项」里设置。';
     $('#mask-submit').textContent = '设置密码并进入';
     $('#mask-skip').style.display = 'inline-flex';
   } else {
@@ -547,24 +699,6 @@ $('#btn-logout').onclick = async () => {
   if (!ok) { /* 遮罩已显示 */ }
 };
 
-/* ── 页面切换 ── */
-document.querySelectorAll('.nav-btn').forEach(btn => {
-  btn.onclick = () => {
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b === btn));
-    const name = btn.dataset.page;
-    document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + name));
-    if (name === 'logs') loadLogs();
-    toggleSidebar(false);
-  };
-});
-
-/* 移动端：侧边栏抽屉 */
-function toggleSidebar(open) {
-  document.querySelector('.sidebar').classList.toggle('open', open);
-  $('#mask-mobile').classList.toggle('show', open);
-}
-$('#btn-menu').onclick = () => toggleSidebar(true);
-
 /* ── 状态 ── */
 async function loadStatus() {
   const r = await api('/admin/status');
@@ -576,22 +710,54 @@ async function loadStatus() {
   const c = r.data.counters || {};
   $('#st-success').textContent = (c.success || 0) + ' / ' + (c.fail || 0);
   $('#st-listen').textContent = r.data.listen || '-';
-  $('#st-started').textContent = r.data.started_at || '-';
-  $('#st-naikey').textContent = s.nai_key_required ? ('开启（' + (s.nai_key_masked || '') + '）') : '关闭（任意 key 可用）';
-  $('#st-chatfallback').textContent = ({ auto: 'auto（失败自动转聊天）', off: 'off（仅标准接口）', chat_only: 'chat_only（仅聊天接口）', openai: 'openai（标准 OpenAI 接口，无兜底）' })[s.chat_fallback] || s.chat_fallback;
+  $('#st-naikey').textContent = s.nai_key_required ? ('开启（' + (s.nai_key_masked || '') + '）') : '关闭（随便填）';
+  $('#st-chatfallback').textContent = ({ auto: '自动（先标准接口，失败转聊天）', off: '只走标准接口', chat_only: '只走聊天画图', openai: '标准 OpenAI 接口' })[s.chat_fallback] || s.chat_fallback;
   $('#st-panelpw').textContent = AUTH.setup_required ? '未设置（建议设置）' : '已设置';
   $('#st-qwenurl').textContent = s.qwen_url || '（未配置）';
   $('#st-qwenmodel').textContent = s.qwen_model || '-';
   $('#st-qwenkey').textContent = s.qwen_key_set ? (s.qwen_key_masked || '已设置') : '（未设置）';
   $('#st-defaultsize').textContent = s.default_size || '-';
-  const base = '（内置扩展 · 无需配置地址）';
-  $('#st-baseurl').textContent = base;
-  $('#st-naikey-hint').innerHTML = s.nai_key_required
-    ? ('填服务端接入密钥（当前 <span class="mono">' + esc(s.nai_key_masked || '') + '</span>；忘记可到「设置中心」重设一个新的）')
-    : '服务端未校验 key，客户端填任意非空 key 即可';
   $('#foot-version').textContent = 'V.Adapter ' + (r.data.version || '');
   $('#pill-text').textContent = '在线';
-  renderRecent(r.data.recent || []);
+
+  // 网关对接信息：服务端形态的 listen 形如 "0.0.0.0:8888"，据此算出给客户端填的 URL；
+  // 扩展内置形态的 listen 是说明文字（无 host:port），按「启动协议服务后的默认地址」提示。
+  const listenStr = String(r.data.listen || '');
+  const gw = /([0-9A-Za-z.\-]*):(\d{1,5})/.exec(listenStr);
+  if (gw && /^\S+:\d+$/.test(listenStr.trim())) {
+    const host = (!gw[1] || gw[1] === '0.0.0.0') ? '127.0.0.1' : gw[1];
+    $('#st-gw-url').textContent = 'http://' + host + ':' + gw[2];
+    // 独立面板形态（:8888 打开本页）时，本页就是网关那一份配置
+    const scope = $('#scope-sentence');
+    if (scope) scope.innerHTML = '本页就是 <span class="mono">:8888</span> 网关的配置 —— V.Canvas、第三方 NovelAI 插件读的就是这份。';
+  } else {
+    $('#st-gw-url').textContent = 'http://127.0.0.1:8888（在扩展抽屉点「启动协议服务」后生效；V.Canvas 地址留空时自动直连、无需填）';
+  }
+  $('#st-gw-key').innerHTML = s.nai_key_required
+    ? ('填接入密钥（当前 <span class="mono">' + esc(s.nai_key_masked || '') + '</span>；在「设置中心 → 第三步·NovelAI 网关」里查看/修改）')
+    : '未校验：客户端填任意非空 Key 都能连。公网部署建议设置一个。';
+
+  // 快速开始清单：第 1 步是否完成、第 2 步是否有成功记录
+  const step1 = !!(s.qwen_url && s.qwen_key_set && s.qwen_model);
+  const recent = r.data.recent || [];
+  const everOk = recent.some(x => x.ok);
+  const step1El = $('#qs-step-1'), step2El = $('#qs-step-2'), step3El = $('#qs-step-3');
+  if (step1El) {
+    step1El.classList.toggle('done', step1);
+    step1El.classList.toggle('todo', !step1);
+    step1El.querySelector('.qs-dot').textContent = step1 ? '✓' : '1';
+  }
+  if (step2El) {
+    step2El.classList.toggle('done', everOk);
+    step2El.classList.toggle('todo', !everOk);
+    step2El.querySelector('.qs-dot').textContent = everOk ? '✓' : '2';
+  }
+  if (step3El) {
+    step3El.classList.toggle('done', !AUTH.setup_required);
+    step3El.classList.toggle('todo', AUTH.setup_required);
+    step3El.querySelector('.qs-dot').textContent = AUTH.setup_required ? '3' : '✓';
+  }
+  renderRecent(recent);
 }
 
 function renderRecent(rows) {
@@ -625,14 +791,14 @@ async function loadSettings() {
   $('#s-qwen-key').placeholder = s.qwen_key_set ? (s.qwen_key_masked + '（留空不改）') : '（未设置）';
   $('#s-nai-key').placeholder = s.nai_key_required ? (s.nai_key_masked + '（留空不改）') : '（不校验）';
   $('#hint-qwen-key').textContent = s.qwen_key_set
-    ? ('当前 Key：' + s.qwen_key_masked + '；要更换请输入新值，留空 = 不修改。')
-    : '当前未设置。';
+    ? ('已保存（显示为 ' + s.qwen_key_masked + '）。要换就输入新值，留空 = 不动。')
+    : '还没设置，填上游给你的密钥。';
   $('#hint-nai-key').textContent = s.nai_key_required
-    ? ('当前 Key：' + s.nai_key_masked + '；客户端渠道须填同一值，修改后请同步更新客户端。')
-    : '当前不校验（客户端填任意非空 key 均可）。';
+    ? ('当前密钥：' + s.nai_key_masked + '。客户端渠道要填同一个值，改了记得两边同步。')
+    : '当前不校验（客户端随便填个非空 Key 就能连）。只在本机用可以不管；公网 / 局域网部署建议设置一个。';
   $('#hint-panel-pw').textContent = AUTH.setup_required
-    ? '未设置密码：任何人访问本面板都能改配置；公网部署请务必设置。'
-    : '已设置密码；修改后当前会话仍有效（24h）。';
+    ? '未设置密码：任何能打开本面板的人都能改配置。公网部署请务必设置。'
+    : '已设置密码；修改后当前会话仍有效（24 小时）。';
 }
 
 async function saveSettings() {
@@ -658,7 +824,7 @@ async function saveSettings() {
   }
   const changed = r.data.changed || [];
   const notes = r.data.notes || [];
-  toast('已保存并热生效：' + (changed.length ? changed.join('、') : '（内容无变化）'));
+  toast('已保存并生效：' + (changed.length ? changed.join('、') : '（内容无变化）'));
   notes.forEach(n => toast(n, 'bad'));
   await loadSettings();
   await loadStatus();
@@ -667,8 +833,8 @@ async function saveSettings() {
 /* ── 测试连接 ── */
 async function testConnection() {
   const btn = $('#btn-test');
-  btn.disabled = true; btn.textContent = '生成中…（最长 300s）';
-  $('#test-result').innerHTML = '<span class="muted">正在调用上游生图，请稍候…</span>';
+  btn.disabled = true; btn.textContent = '画图中…（最长 300 秒）';
+  $('#test-result').innerHTML = '<span class="muted">正在调用上游画图，约 6~60 秒，请稍候…</span>';
   $('#test-preview').style.display = 'none';
   const payload = {
     url: $('#t-url').value.trim(),
@@ -681,12 +847,13 @@ async function testConnection() {
   btn.disabled = false; btn.textContent = '测试连接';
   if (!r.ok || !r.data || !r.data.success) {
     const msg = (r.data && (r.data.error || r.data.message)) || ('HTTP ' + r.status);
-    $('#test-result').innerHTML = '<span class="err">' + esc(msg) + '</span>';
+    $('#test-result').innerHTML = '<span class="err">' + esc(msg) + '</span>' +
+      '<div class="muted" style="font-size:12px;margin-top:8px">排错顺序：① 检查地址/密钥/模型名是否照服务商给的原样填；② 到「生成记录」页看详细失败原因；③ 失败原因是「上游风控/验证码」时等几分钟再试。</div>';
     toast('测试连接失败', 'bad');
     return;
   }
   const d = r.data;
-  $('#test-result').innerHTML = '<b>生成成功</b>：耗时 ' + esc(d.latency_ms) + 'ms，链路 <span class="tag info">' + esc(d.via) + '</span>，尺寸 ' + esc(d.size) + '，模型 ' + esc(d.model) + '，' + Math.round((d.bytes || 0) / 1024) + 'KB';
+  $('#test-result').innerHTML = '<b>✓ 测试成功</b>：耗时 ' + esc(d.latency_ms) + 'ms，走的 <span class="tag info">' + esc(d.via) + '</span> 路，尺寸 ' + esc(d.size) + '，模型 ' + esc(d.model) + '，' + Math.round((d.bytes || 0) / 1024) + 'KB';
   if (d.preview) {
     const img = $('#test-preview');
     const u = imgUrl(d.preview);
@@ -706,7 +873,7 @@ async function loadLogs() {
   if (!r.ok || !r.data) return;
   const rows = r.data.logs || [];
   const c = r.data.counters || {};
-  $('#logs-count').textContent = '共 ' + (c.total || 0) + ' 次（成功 ' + (c.success || 0) + ' / 失败 ' + (c.fail || 0) + '），保留上限 ' + (r.data.cap || 200) + ' 条';
+  $('#logs-count').textContent = '共 ' + (c.total || 0) + ' 次（成功 ' + (c.success || 0) + ' / 失败 ' + (c.fail || 0) + '），最多保留 ' + (r.data.cap || 200) + ' 条';
   if (!rows.length) {
     $('#log-rows').innerHTML = '<tr><td colspan="8" class="muted" style="padding:14px 10px">暂无记录</td></tr>';
     return;
@@ -723,12 +890,35 @@ async function loadLogs() {
   </tr>`).join('');
 }
 
+/* ── 设置页搜索：过滤当前页的卡片 ── */
+$('#settings-search').addEventListener('input', e => {
+  const q = e.target.value.trim().toLowerCase();
+  const cards = document.querySelectorAll('#page-settings .card, #page-settings details.explain');
+  let visible = 0;
+  cards.forEach(c => {
+    const hit = !q || c.textContent.toLowerCase().includes(q);
+    c.style.display = hit ? '' : 'none';
+    if (hit) visible++;
+    if (q && hit && c.tagName === 'DETAILS') c.open = true;   // 搜到折叠块时自动展开
+  });
+  $('#search-empty').style.display = (q && visible === 0) ? 'block' : 'none';
+});
+
 /* ── 绑定 ── */
 $('#btn-save').onclick = saveSettings;
 $('#btn-test').onclick = testConnection;
 $('#btn-test-advanced').onclick = () => {
   const el = $('#test-advanced');
   el.style.display = el.style.display === 'none' ? 'block' : 'none';
+};
+// 出图方式快选：按上游类型替用户选好（仍需点「保存设置」）
+$('#btn-pick-chatmodel').onclick = () => {
+  $('#s-chat-fallback').value = 'chat_only';
+  toast('已选「只走聊天画图」，记得点「保存设置」');
+};
+$('#btn-pick-imgmodel').onclick = () => {
+  $('#s-chat-fallback').value = 'auto';
+  toast('已选「自动」，记得点「保存设置」');
 };
 $('#btn-refresh-overview').onclick = () => { loadStatus(); toast('已刷新'); };
 $('#btn-refresh-logs').onclick = () => loadLogs();
@@ -745,10 +935,10 @@ function trRenderText(d) {
   const item = (label, val) => val
     ? '<div style="margin-bottom:10px"><div class="muted" style="font-size:12px;margin-bottom:2px">' + label + '</div><div class="mono" style="white-space:pre-wrap;word-break:break-all;background:hsl(222 18% 14%);border-radius:6px;padding:8px 10px">' + esc(val) + '</div></div>'
     : '';
-  return item('总提示词', d.prompt) +
+  return item('扩写出的总提示词', d.prompt) +
     item('角色描述', d.character_prompt) +
     item('场景与画风', d.main_prompt) +
-    item('负面词', d.negative_prompt);
+    item('负面词（画面里避免出现的内容）', d.negative_prompt);
 }
 
 function trShowImage(d) {
@@ -762,8 +952,7 @@ function trShowImage(d) {
   const a = $('#btn-dl-image');
   a.href = u;
   a.setAttribute('download', 'translate.' + (d.ext || 'png'));
-  $('#tr-image-info').textContent = '耗时 ' + d.latency_ms + 'ms · 链路 ' + (d.via || '-') +
-    ' · 尺寸 ' + (d.used_size || '-') + ' · ' + Math.round((d.bytes || 0) / 1024) + 'KB';
+  $('#tr-image-info').textContent = '耗时 ' + d.latency_ms + 'ms · 走 ' + (d.via || '-') + ' 路 · 尺寸 ' + (d.used_size || '-') + ' · ' + Math.round((d.bytes || 0) / 1024) + 'KB';
 }
 
 async function runTranslate(generate) {
@@ -772,8 +961,8 @@ async function runTranslate(generate) {
   const btnGen = $('#btn-translate-gen'), btnOnly = $('#btn-translate'), box = $('#tr-result');
   const labelGen = btnGen.textContent;
   btnGen.disabled = true; btnOnly.disabled = true;
-  if (generate) btnGen.textContent = '转译并出图中…（最长 320s）';
-  box.innerHTML = '<span class="muted">' + (generate ? '正在转译并调用上游出图，请稍候…' : '正在转译，请稍候…') + '</span>';
+  if (generate) btnGen.textContent = '转译并出图中…（最长 320 秒）';
+  box.innerHTML = '<span class="muted">' + (generate ? '正在扩写并调用上游出图，请稍候…' : '正在扩写，请稍候…') + '</span>';
   const payload = { text: text, generate: generate };
   const size = $('#tr-size').value;
   if (size) payload.size = size;
@@ -794,10 +983,10 @@ async function runTranslate(generate) {
     toast('出图完成（' + r.data.latency_ms + 'ms，' + (r.data.via || '-') + '）');
     loadStatus(); loadLogs();
   } else if (generate && r.data.image_error) {
-    box.innerHTML += '<div class="err" style="margin-top:8px">转译成功，但出图失败：' + esc(r.data.image_error) + '</div>';
-    toast('转译成功，出图失败', 'bad');
+    box.innerHTML += '<div class="err" style="margin-top:8px">文字扩写成功，但出图失败：' + esc(r.data.image_error) + '</div>';
+    toast('扩写成功，出图失败', 'bad');
   } else {
-    toast('转译完成');
+    toast('扩写完成');
   }
 }
 $('#btn-translate-gen').onclick = () => runTranslate(true);
@@ -818,7 +1007,7 @@ $('#btn-regen').onclick = async () => {
   const size = $('#tr-size').value || prev.used_size || '';
   if (size) payload.size = size;
   const r = await api('/admin/translate', { method: 'POST', body: JSON.stringify(payload) });
-  btn.disabled = false; btn.textContent = '再出一张（同提示词）';
+  btn.disabled = false; btn.textContent = '再出一张（沿用同一段提示词，避免画风突变）';
   if (!r.ok || !r.data || !r.data.preview) {
     const msg = (r.data && (r.data.image_error || r.data.error || r.data.message)) || ('HTTP ' + r.status);
     toast('出图失败：' + msg, 'bad');
@@ -831,7 +1020,7 @@ $('#btn-regen').onclick = async () => {
 };
 
 $('#btn-copy-translate').onclick = () => {
-  if (!window.__tr) { toast('还没有转译结果', 'bad'); return; }
+  if (!window.__tr) { toast('还没有扩写结果', 'bad'); return; }
   const d = window.__tr.data;
   const text = ['总提示词：', d.prompt, '', '角色描述：', d.character_prompt, '', '场景与画风：', d.main_prompt, '', '负面词：', d.negative_prompt, '', '推荐尺寸：' + d.width + 'x' + d.height + '，步数：' + d.steps].join('\n');
   navigator.clipboard.writeText(text).then(() => toast('已复制到剪贴板'), () => toast('复制失败，请手动选择复制', 'bad'));
@@ -839,7 +1028,7 @@ $('#btn-copy-translate').onclick = () => {
 
 async function clearKey(name) {
   const label = name === 'nai_key' ? '接入密钥' : 'API 密钥';
-  if (!confirm('确定清除' + label + '？' + (name === 'nai_key' ? '清除后客户端填任意 key 均可调用。' : '清除后请求会用占位符。'))) return;
+  if (!confirm('确定清除' + label + '？' + (name === 'nai_key' ? '清除后客户端随便填个 key 都能连。' : '清除后需要重新填写才能出图。'))) return;
   const r = await api('/admin/settings', { method: 'POST', body: JSON.stringify({ clear: [name] }) });
   if (!r.ok || !r.data || !r.data.success) { toast('清除失败', 'bad'); return; }
   toast(name + ' 已清除'); loadSettings(); loadStatus();
