@@ -349,3 +349,77 @@ export function handleEncodeVibe(req, res) {
         statusCode: 404,
     });
 }
+
+// ── 服务端代取图片（跨域兜底）──
+
+// looksLikeImage 按文件魔数判断缓冲是否为常见位图（png/jpg/webp/gif/bmp）。
+function looksLikeImage(buf) {
+    if (!buf || buf.length < 12) return false;
+    if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) return true;   // PNG
+    if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return true;                      // JPEG
+    const head4 = buf.subarray(0, 4).toString('latin1');
+    const head812 = buf.subarray(8, 12).toString('latin1');
+    if (head4 === 'RIFF' && head812 === 'WEBP') return true;                                     // WEBP
+    const six = buf.subarray(0, 6).toString('latin1');
+    if (six === 'GIF87a' || six === 'GIF89a') return true;                                       // GIF
+    if (buf[0] === 0x42 && buf[1] === 0x4d) return true;                                         // BMP
+    return false;
+}
+
+// handleFetchUrl POST /ai/fetch-url → 服务端代取一张远程图片的字节。
+//
+// 存在理由：聊天链路的成图链接（如 cdn.qwenlm.ai）不允许跨域，浏览器侧 downloadImage
+// 拿不到字节，只能降级成临时远程链接 —— 图会随链接失效而消失，也没法去水印。
+// 本端点让页面内的扩展经本服务（Node，无跨域限制）取回字节，扩展侧即可正常落盘与去水印。
+//
+// 安全口径：与生成端点同一把 nai_key 门禁；仅接受 http(s)；响应必须是图片
+// （Content-Type 或魔数双重确认）；大小上限 32MB；超时 60 秒。
+// 它只服务于「把刚生成的图取回来」，不是通用代理。
+export async function handleFetchUrl(req, res, ctx) {
+    if (req.method !== 'POST') {
+        return sendJSON(res, 405, { message: '仅支持 POST' });
+    }
+    let raw;
+    try {
+        raw = await ctx.readBody(1 << 20);
+    } catch (err) {
+        return sendJSON(res, 400, { message: '读取请求体失败：' + err.message });
+    }
+    let body;
+    try { body = JSON.parse(raw.toString('utf8')); } catch { body = null; }
+    const url = String(body?.url ?? '').trim();
+    if (!/^https?:\/\//i.test(url)) {
+        return sendJSON(res, 400, { message: 'url 必须是 http(s) 地址' });
+    }
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 60 * 1000);
+    try {
+        const resp = await fetch(url, {
+            signal: controller.signal,
+            redirect: 'follow',
+            headers: { 'User-Agent': 'Mozilla/5.0 (V.Adapter image fetch)' },
+        });
+        if (!resp.ok) {
+            return sendJSON(res, 502, { message: `取图失败：HTTP ${resp.status}` });
+        }
+        const type = String(resp.headers.get('content-type') ?? '');
+        const buf = Buffer.from(await resp.arrayBuffer());
+        if (buf.length > (32 << 20)) {
+            return sendJSON(res, 413, { message: '图片过大（超过 32MB 上限）' });
+        }
+        if (!/^image\//i.test(type) && !looksLikeImage(buf)) {
+            return sendJSON(res, 415, { message: '目标地址返回的不是图片（Content-Type: ' + (type || '未知') + '）' });
+        }
+        res.writeHead(200, {
+            'Content-Type': /^image\//i.test(type) ? type : 'application/octet-stream',
+            'Content-Length': buf.length,
+        });
+        res.end(buf);
+    } catch (err) {
+        const msg = controller.signal.aborted ? '取图超时（60 秒）' : (err?.message ?? String(err));
+        sendJSON(res, 502, { message: '取图失败：' + msg });
+    } finally {
+        clearTimeout(timer);
+    }
+}

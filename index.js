@@ -11,8 +11,8 @@
 // 画风：本扩展不再提供画风预设。画风统一由消费方（V.Canvas 的「提示词」页、
 //       第三方的生图插件）自行决定，经 :8888 转发的请求按客户端给的 input 原样送出。
 
-import { eventSource, event_types, systemUserName, getRequestHeaders } from '/script.js';
-import { getContext } from '/scripts/extensions.js';
+import { eventSource, event_types, systemUserName, getRequestHeaders, saveSettingsDebounced } from '/script.js';
+import { getContext, extension_settings } from '/scripts/extensions.js';
 import { saveBase64AsFile } from '/scripts/utils.js';
 import { getMessageTimeStamp } from '/scripts/RossAscends-mods.js';
 import { MEDIA_TYPE, MEDIA_SOURCE, MEDIA_DISPLAY } from '/scripts/constants.js';
@@ -22,7 +22,7 @@ import { ARGUMENT_TYPE, SlashCommandArgument, SlashCommandNamedArgument } from '
 
 import { initSettings, bindResetImagesBroken, settingsGet, normalizeSizeStr } from './lib/settings.js';
 import { genLog, newRecord } from './lib/genlog.js';
-import { generateImage, resetImagesBroken, truncate, bytesToBase64, logf } from './lib/pipeline.js';
+import { generateImage, resetImagesBroken, truncate, bytesToBase64, persistGenerationImage, logf } from './lib/pipeline.js';
 import { translateCharacter } from './lib/translate.js';
 import { handleApi } from './lib/virtual-api.js';
 
@@ -30,14 +30,34 @@ import { handleApi } from './lib/virtual-api.js';
 export const MODULE_NAME = 'v-adapter';
 const version = 'v1.1.5-st.1';
 
+// 生成记录的持久化键（记录本体存 extension_settings，随酒馆设置文件落盘）。
+const GENLOG_KEY = 'v_adapter_genlog';
+
 // ── 初始化 ──
 export async function init() {
     initSettings();
     bindResetImagesBroken(resetImagesBroken);
+    bindGenlogStorage();
 
     addSettingsUI();
     registerSlashCommand();
     logf(`已加载（${version}）：扩展自身即出图引擎，装上即可用`);
+}
+
+// bindGenlogStorage 让生成记录跨重启保留：读自 / 写回 extension_settings，
+// 保存走酒馆的防抖落盘。最多 200 条（cap 在 genlog.js 内），单条约 300 字节，
+// 整体 ≤ 80KB，不会让设置文件明显膨胀。存取失败一律静默降级为内存模式。
+function bindGenlogStorage() {
+    genLog.bindStorage({
+        load: () => {
+            const saved = extension_settings[GENLOG_KEY];
+            return Array.isArray(saved) ? saved : null;
+        },
+        save: (records) => {
+            extension_settings[GENLOG_KEY] = records;
+            saveSettingsDebounced();
+        },
+    });
 }
 
 export async function exit() {
@@ -107,6 +127,10 @@ async function runGeneration(prompt, neg, size) {
     rec.ok = true;
     rec.status = 200;
     rec.via = result.via;
+    // 出图成功即落盘成稳定本地文件：生成记录与聊天引用的都是它，
+    // 不再依赖会过期的远程 CDN 链接（无字节、只有 remoteUrl 时落盘不了，记录会标注远程）
+    result.url = await persistGenerationImage(result, getContext()?.name2 || 'V.Adapter');
+    rec.url = result.url;
     genLog.Add(rec);
     logf(`[Gen] 生图成功（${rec.latency_ms}ms via ${result.via}）：${size} ${result.ext} ${Math.floor((result.data?.length ?? 0) / 1024)}KB`);
     return result;
@@ -123,15 +147,18 @@ async function deliverToChat(result, title) {
     const context = getContext();
     const name = context.groupId ? systemUserName : context.name2;
 
-    let url;
-    if (result.data) {
-        const b64 = bytesToBase64(result.data);
-        const filename = `${name}_${Date.now()}`;
-        url = await saveBase64AsFile(b64, name, filename, result.ext);
-    } else if (result.remoteUrl) {
-        url = result.remoteUrl; // CORS 降级：直接引用远程图（浏览器展示无需跨域）
-    } else {
-        throw new Error('生图结果为空');
+    // 出图主链路已统一落盘（result.url）：有本地文件就直接引用，不重复保存
+    let url = result.url;
+    if (!url) {
+        if (result.data) {
+            const b64 = bytesToBase64(result.data);
+            const filename = `${name}_${Date.now()}`;
+            url = await saveBase64AsFile(b64, name, filename, result.ext);
+        } else if (result.remoteUrl) {
+            url = result.remoteUrl; // CORS 降级：直接引用远程图（浏览器展示无需跨域）
+        } else {
+            throw new Error('生图结果为空');
+        }
     }
 
     const message = {

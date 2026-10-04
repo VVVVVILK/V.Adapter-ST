@@ -103,6 +103,16 @@ table{width:100%;border-collapse:collapse;font-size:12.5px}
 th,td{padding:9px 10px;text-align:left;border-bottom:1px solid hsl(222 14% 22% / .6);vertical-align:top}
 th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-fg);font-weight:700;white-space:nowrap}
 td.prompt{max-width:260px;word-break:break-word}
+/* 生成记录缩略图墙（与 V.Canvas 的记录页同一套设计） */
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.thumb{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:hsl(222 26% 9% / .6)}
+.thumb a{display:block}
+.thumb img{display:block;width:100%;height:150px;object-fit:cover;background:hsl(222 26% 8%)}
+.thumb .tb-meta{padding:7px 9px;font-size:11px;color:var(--muted-fg);line-height:1.5;word-break:break-word}
+.thumb .tb-meta b{color:var(--fg);font-weight:600}
+.tb-tag{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:999px;font-size:10px;font-weight:700;color:var(--warning);background:hsl(38 92% 50% / .12);border:1px solid hsl(38 92% 50% / .3)}
+.thumb-noimg{height:150px;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px;font-size:11.5px;color:var(--muted-fg)}
+.thumb-fail{height:150px;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px;font-size:12px;color:var(--danger);background:hsl(0 72% 58% / .08);word-break:break-word}
 .tag{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
 .tag.ok{color:var(--success);background:hsl(142 71% 45% / .12);border:1px solid hsl(142 71% 45% / .25)}
 .tag.bad{color:var(--danger);background:hsl(0 72% 58% / .1);border:1px solid hsl(0 72% 58% / .25)}
@@ -482,7 +492,7 @@ details.explain.warn .explain-body b{color:var(--warning)}
       <section class="page" id="page-logs">
         <div class="page-head">
           <h1>生成记录</h1>
-          <p><b>这一页是干嘛的：</b>出图哪里出了问题，最先来这里看。每次生成/测试都记一行，含失败原因。最近 200 条，重启后清空。</p>
+          <p><b>这一页是干嘛的：</b>出图哪里出了问题，最先来这里看。每次生成/测试都记一行，含失败原因。最近 200 条，随酒馆设置持久保存（重启、刷新都不丢）。</p>
         </div>
         <div class="card">
           <div class="card-head">
@@ -493,9 +503,8 @@ details.explain.warn .explain-body b{color:var(--warning)}
               <button class="btn danger sm" id="btn-clear-logs">清空</button>
             </div>
           </div>
-          <div class="card-body" style="padding:0">
-            <table><thead><tr><th>时间</th><th>类型</th><th>尺寸</th><th><span class="term" data-term="via">链路</span></th><th>耗时</th><th>结果</th><th>提示词</th><th>失败原因</th></tr></thead>
-            <tbody id="log-rows"><tr><td colspan="8" class="muted" style="padding:14px 10px">暂无记录</td></tr></tbody></table>
+          <div class="card-body">
+            <div id="log-rows"><div class="empty">读取中…</div></div>
           </div>
         </div>
       </section>
@@ -874,20 +883,51 @@ async function loadLogs() {
   const rows = r.data.logs || [];
   const c = r.data.counters || {};
   $('#logs-count').textContent = '共 ' + (c.total || 0) + ' 次（成功 ' + (c.success || 0) + ' / 失败 ' + (c.fail || 0) + '），最多保留 ' + (r.data.cap || 200) + ' 条';
+  renderLogRows(rows);
+}
+
+// renderLogRows 把记录渲染成缩略图墙：
+// 成功 → 图片卡（点开看原图）；失败 → 错误卡。图片显示带 no-referrer（上游 CDN 防盗链），
+// 加载失败换占位说明（远程链接可能已过期）。
+function thumbImg(url) {
+  return '<img src="' + esc(imgUrl(url)) + '" referrerpolicy="no-referrer" loading="lazy" alt="生成记录图片">';
+}
+
+function markImgErrors(root) {
+  root.querySelectorAll('img').forEach(im => {
+    const onErr = () => {
+      const box = document.createElement('div');
+      box.className = 'thumb-noimg';
+      box.innerHTML = '<b>图片未能加载</b><br>远程链接可能已过期（未落盘的临时链接）；此后生成的图都会保存到本机，不再依赖远程链接';
+      im.replaceWith(box);
+    };
+    if (im.complete && im.naturalWidth === 0) onErr();
+    else im.addEventListener('error', onErr, { once: true });
+  });
+}
+
+function renderLogRows(rows) {
+  const wrap = $('#log-rows');
   if (!rows.length) {
-    $('#log-rows').innerHTML = '<tr><td colspan="8" class="muted" style="padding:14px 10px">暂无记录</td></tr>';
+    wrap.innerHTML = '<div class="empty">还没有记录。出一次图就会出现在这里 —— 测试连接、角色转译、聊天里的自动配图（含 V.Canvas 经本插件出的图）都会记下，并保存图片本身。</div>';
     return;
   }
-  $('#log-rows').innerHTML = rows.map(r0 => `<tr>
-    <td class="mono">${esc(r0.time)}</td>
-    <td>${esc(r0.kind)}</td>
-    <td class="mono">${esc(r0.size)}</td>
-    <td>${esc(r0.via || '-')}</td>
-    <td class="mono">${esc(r0.latency_ms)}ms</td>
-    <td>${r0.ok ? '<span class="tag ok">成功</span>' : '<span class="tag bad">失败</span>'}</td>
-    <td class="prompt">${esc(r0.prompt || '')}</td>
-    <td class="prompt err">${esc(r0.error || '')}</td>
-  </tr>`).join('');
+  wrap.innerHTML = '<div class="thumbs">' + rows.map(r => {
+    if (r.ok) {
+      const remote = /^https?:/i.test(String(r.url || '').trim());
+      const head = '<div class="tb-meta"><b>' + esc(r.time) + '</b> · ' + esc(r.kind) +
+        (remote ? '<span class="tb-tag">远程链接 · 未落盘</span>' : '') + '<br>' +
+        esc(r.size || '') + ' · 走 ' + esc(r.via || '-') + '<br>' + esc((r.prompt || '').slice(0, 44)) + '</div>';
+      if (r.url) {
+        return '<div class="thumb">' +
+          '<a href="' + esc(imgUrl(r.url)) + '" target="_blank" rel="noopener noreferrer">' + thumbImg(r.url) + '</a>' + head + '</div>';
+      }
+      return '<div class="thumb"><div class="thumb-noimg">（此条没有图片：升级前的旧记录只存了文字）</div>' + head + '</div>';
+    }
+    return '<div class="thumb"><div class="thumb-fail">✕ 失败<br>' + esc((r.error || '').slice(0, 120)) + '</div>' +
+      '<div class="tb-meta"><b>' + esc(r.time) + '</b> · ' + esc(r.kind) + '</div></div>';
+  }).join('') + '</div>';
+  markImgErrors(wrap);
 }
 
 /* ── 设置页搜索：过滤当前页的卡片 ── */
@@ -949,10 +989,56 @@ function trShowImage(d) {
   img.referrerPolicy = 'no-referrer';
   img.src = u;
   $('#tr-image-wrap').style.display = 'block';
-  const a = $('#btn-dl-image');
-  a.href = u;
-  a.setAttribute('download', 'translate.' + (d.ext || 'png'));
-  $('#tr-image-info').textContent = '耗时 ' + d.latency_ms + 'ms · 走 ' + (d.via || '-') + ' 路 · 尺寸 ' + (d.used_size || '-') + ' · ' + Math.round((d.bytes || 0) / 1024) + 'KB';
+  setDownloadLink($('#btn-dl-image'), u, 'translate.' + (d.ext || 'png'));
+  $('#tr-image-info').textContent = '耗时 ' + d.latency_ms + 'ms · 走 ' + (d.via || '-') + ' 路 · 尺寸 ' + (d.used_size || '-') + ' · ' + (d.bytes ? Math.round(d.bytes / 1024) + 'KB' : '远程链接（未落盘）');
+}
+
+// ── 下载链接统一走 Blob ──
+// 直接用原始地址当 <a href> 有两个坑：
+//   1. 结果是 data:URL 时，Chrome 对超过约 2MB 的 data 下载会失败（生图普遍 2MB+）；
+//   2. 结果是跨域远程图（CORS 降级的 remoteUrl）时，download 属性被忽略，
+//      点击会把本面板 iframe 导航到原图 —— 表现为「图片突然撑满整个面板」。
+// 所以：data:URL 一律转成 Blob（不受大小限制）；远程图先尝试跨域取字节，
+// 取不到（CDN 不允许 CORS）就退化为「新标签页打开」，用户右键另存即可。
+let lastDownloadUrl = null;
+
+async function setDownloadLink(a, url, filename) {
+  if (lastDownloadUrl) { try { URL.revokeObjectURL(lastDownloadUrl); } catch { /* 忽略 */ } lastDownloadUrl = null; }
+  a.removeAttribute('download');
+  a.removeAttribute('target');
+  a.removeAttribute('rel');
+  a.removeAttribute('href');
+  a.textContent = '准备下载…';
+  const fallback = () => {
+    a.textContent = '在新标签页打开（右键图片可另存为）';
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+  };
+  let href = '';
+  try {
+    if (/^data:/i.test(url)) {
+      href = URL.createObjectURL(await (await fetch(url)).blob());
+    } else if (/^https?:/i.test(url)) {
+      try {
+        const resp = await fetch(url, { referrerPolicy: 'no-referrer' });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        href = URL.createObjectURL(await resp.blob());
+      } catch {
+        fallback();
+        return;
+      }
+    } else {
+      href = url;   // 同源相对路径，直接用
+    }
+  } catch {
+    fallback();
+    return;
+  }
+  lastDownloadUrl = href;
+  a.href = href;
+  a.setAttribute('download', filename);
+  a.textContent = '下载图片';
 }
 
 async function runTranslate(generate) {

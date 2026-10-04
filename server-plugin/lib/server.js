@@ -21,7 +21,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { initSettings, settingsGet, bindResetImagesBroken } from './settings.js';
-import { handleGenerateImage, handleSubscription, handleEncodeVibe, naiKeyGate } from './nai.js';
+import { handleGenerateImage, handleSubscription, handleEncodeVibe, handleFetchUrl, naiKeyGate } from './nai.js';
 import { resetImagesBroken, logf } from './pipeline.js';
 import { initAuth, handleAdminRequest, setRuntime, writeJSON } from './admin.js';
 
@@ -147,6 +147,11 @@ async function route(req, res) {
     }
     if (p === '/ai/encode-vibe') {
         handleEncodeVibe(req, res, ctx);
+        return;
+    }
+    // 服务端代取图片：浏览器跨域拿不到成图字节时的兜底（扩展页面内链路调用）
+    if (p === '/ai/fetch-url') {
+        await naiKeyGate(handleFetchUrl)(req, res, ctx);
         return;
     }
 
