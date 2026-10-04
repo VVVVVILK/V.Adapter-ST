@@ -208,3 +208,82 @@
     margin: 0 0 14px;
     color: #94a3b8;
 }
+
+/* ── 悬浮入口（聊天页右下角，点击直达管理面板）──
+   两个 V 系插件共用一个停靠栏，先到者创建、后者追加，纵向排列。
+   深色玻璃圆徽 + 金属渐变环（悬停旋转）+ 滑出名牌：
+   · Canvas = 棱镜分光（文字进、画面出），青翠色系；
+   · Adapter = 光之门拱（网关），琥珀色系。 */
+#v_fab_dock {
+    position: fixed;
+    right: 14px;
+    bottom: 92px;
+    z-index: 3000;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-end;
+}
+
+#v_fab_dock .v_fab_btn {
+    position: relative;
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 50% 38%, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0) 55%),
+        linear-gradient(160deg, rgba(30, 41, 59, 0.92), rgba(15, 23, 42, 0.96));
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+#v_fab_dock .v_fab_btn::before {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, var(--fab-c1), var(--fab-c2), var(--fab-c3), var(--fab-c1));
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3.5px), #000 calc(100% - 2.5px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 3.5px), #000 calc(100% - 2.5px));
+    opacity: 0.9;
+}
+
+#v_fab_dock .v_fab_btn:hover {
+    transform: scale(1.09);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.55), 0 0 26px var(--fab-glow);
+}
+
+#v_fab_dock .v_fab_btn:hover::before { animation: vfab_ring_spin 2.6s linear infinite; }
+#v_fab_dock .v_fab_btn:active { transform: scale(0.95); }
+
+.v_fab_canvas { --fab-c1: #34d399; --fab-c2: #22d3ee; --fab-c3: #10b981; --fab-glow: rgba(16, 185, 129, 0.42); }
+.v_fab_adapter { --fab-c1: #fbbf24; --fab-c2: #fb923c; --fab-c3: #f59e0b; --fab-glow: rgba(245, 158, 11, 0.42); }
+
+@keyframes vfab_ring_spin { to { transform: rotate(360deg); } }
+
+#v_fab_dock .v_fab_label {
+    position: absolute;
+    right: calc(100% + 12px);
+    top: 50%;
+    transform: translateY(-50%) translateX(8px);
+    opacity: 0;
+    pointer-events: none;
+    white-space: nowrap;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 6px 11px;
+    border-radius: 9px;
+    background: rgba(15, 23, 42, 0.94);
+    color: #e5e7eb;
+    border: 1px solid rgba(127, 127, 127, 0.45);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+#v_fab_dock .v_fab_label b { color: var(--fab-c1); }
+#v_fab_dock .v_fab_btn:hover .v_fab_label { opacity: 1; transform: translateY(-50%) translateX(0); }

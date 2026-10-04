@@ -41,7 +41,102 @@ export async function init() {
 
     addSettingsUI();
     registerSlashCommand();
+    addFabButton();
     logf(`已加载（${version}）：扩展自身即出图引擎，装上即可用`);
+}
+
+// ── 悬浮入口 ──
+// 聊天页右下角的常驻小按钮，点击直达管理面板。
+// 两个 V 系插件共用一个停靠栏（先加载者创建，后加载者追加），图案彼此错开：
+// Adapter = 光之门拱（网关，琥珀色）；Canvas = 棱镜分光（剧情插画，青翠色）。
+function addFabButton() {
+    let dock = document.getElementById('v_fab_dock');
+    if (!dock) {
+        dock = document.createElement('div');
+        dock.id = 'v_fab_dock';
+        document.body.appendChild(dock);
+    }
+    if (document.getElementById('v_adapter_fab')) return;
+    const btn = document.createElement('div');
+    btn.id = 'v_adapter_fab';
+    btn.className = 'v_fab_btn v_fab_adapter';
+    btn.title = 'V.Adapter · 出图引擎 —— 点击打开管理面板';
+    btn.setAttribute('aria-label', btn.title);
+    btn.innerHTML =
+        '<svg viewBox="0 0 48 48" width="30" height="30" fill="none" stroke-linecap="round" aria-hidden="true">'
+        + '<defs><linearGradient id="vfab_ad_g" x1="0" y1="0" x2="0" y2="1">'
+        + '<stop offset="0" stop-color="#fde68a"/><stop offset="1" stop-color="#fb923c"/></linearGradient></defs>'
+        + '<circle cx="24" cy="24" r="19" stroke="rgba(251,191,36,.35)" stroke-width="1.2"/>'
+        + '<path d="M24 3 v4 M45 24 h-4 M24 45 v-4 M3 24 h4" stroke="rgba(251,191,36,.55)" stroke-width="1.4"/>'
+        + '<path d="M16 30 V21 C16 15.5 19.5 12.5 24 12.5 C28.5 12.5 32 15.5 32 21 V30" stroke="url(#vfab_ad_g)" stroke-width="2"/>'
+        + '<path d="M13.5 30 H34.5" stroke="url(#vfab_ad_g)" stroke-width="2"/>'
+        + '<circle cx="24" cy="21.5" r="1.6" fill="#fde68a"/>'
+        + '</svg>'
+        + '<span class="v_fab_label"><b>V.Adapter</b> · 出图引擎</span>';
+    dock.appendChild(btn);
+    makeFabDraggable(btn, 'v_adapter_fab_pos', openPanel);
+}
+
+// makeFabDraggable 让徽章可以按住拖到页面任意位置（位置记忆，刷新不丢），
+// 「拖动」与「点击」按位移阈值区分：位移 ≥6px 视为拖拽，松手吸附视口内并保存；
+// 没拖动就是打开面板。触屏同样生效（pointer 事件 + touch-action:none）。
+function makeFabDraggable(btn, storageKey, onClick) {
+    const placeAt = (x, y) => {
+        btn.style.position = 'fixed';
+        btn.style.left = Math.round(x) + 'px';
+        btn.style.top = Math.round(y) + 'px';
+        btn.style.right = 'auto';
+        btn.style.bottom = 'auto';
+        btn.dataset.floating = '1';
+    };
+    const clamp = (x, y) => ({
+        x: Math.min(Math.max(4, x), window.innerWidth - btn.offsetWidth - 4),
+        y: Math.min(Math.max(4, y), window.innerHeight - btn.offsetHeight - 4),
+    });
+    // 恢复上次拖放的位置
+    try {
+        const saved = JSON.parse(localStorage.getItem(storageKey) ?? 'null');
+        if (saved && Number.isFinite(saved.x) && Number.isFinite(saved.y)) {
+            const p = clamp(saved.x, saved.y);
+            placeAt(p.x, p.y);
+        }
+    } catch { /* 忽略 */ }
+
+    let drag = null;
+    btn.addEventListener('pointerdown', (e) => {
+        if (e.button !== undefined && e.button !== 0) return;
+        const r = btn.getBoundingClientRect();
+        drag = { sx: e.clientX, sy: e.clientY, x: r.left, y: r.top, moved: false };
+        try { btn.setPointerCapture(e.pointerId); } catch { /* 忽略 */ }
+        e.preventDefault();
+    });
+    btn.addEventListener('pointermove', (e) => {
+        if (!drag) return;
+        const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+        if (!drag.moved && Math.hypot(dx, dy) < 6) return;
+        drag.moved = true;
+        placeAt(drag.x + dx, drag.y + dy);
+    });
+    btn.addEventListener('pointerup', (e) => {
+        if (!drag) return;
+        const wasDragged = drag.moved;
+        const r = btn.getBoundingClientRect();
+        drag = null;
+        if (wasDragged) {
+            const p = clamp(r.left, r.top);
+            placeAt(p.x, p.y);
+            try { localStorage.setItem(storageKey, JSON.stringify({ x: p.x, y: p.y })); } catch { /* 忽略 */ }
+        } else {
+            onClick();
+        }
+    });
+    btn.addEventListener('pointercancel', () => { drag = null; });
+}
+
+function removeFabButton() {
+    document.getElementById('v_adapter_fab')?.remove();
+    const dock = document.getElementById('v_fab_dock');
+    if (dock && !dock.children.length) dock.remove();
 }
 
 // bindGenlogStorage 让生成记录跨重启保留：读自 / 写回 extension_settings，
@@ -61,6 +156,7 @@ function bindGenlogStorage() {
 }
 
 export async function exit() {
+    removeFabButton();
     $(`#v_adapter_drawer`).remove();
     $('#v_adapter_panel_overlay').remove();
 }
