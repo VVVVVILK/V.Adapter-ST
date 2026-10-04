@@ -862,7 +862,7 @@ async function testConnection() {
     return;
   }
   const d = r.data;
-  $('#test-result').innerHTML = '<b>✓ 测试成功</b>：耗时 ' + esc(d.latency_ms) + 'ms，走的 <span class="tag info">' + esc(d.via) + '</span> 路，尺寸 ' + esc(d.size) + '，模型 ' + esc(d.model) + '，' + Math.round((d.bytes || 0) / 1024) + 'KB';
+  $('#test-result').innerHTML = '<b>✓ 测试成功</b>：耗时 ' + esc(d.latency_ms) + 'ms，走的 <span class="tag info">' + esc(d.via) + '</span> 路，尺寸 ' + esc(d.size) + '，模型 ' + esc(d.model) + (d.bytes ? '，' + Math.round(d.bytes / 1024) + 'KB' : '，<span class="muted">图片为远程链接（未落盘）</span>');
   if (d.preview) {
     const img = $('#test-preview');
     const u = imgUrl(d.preview);
