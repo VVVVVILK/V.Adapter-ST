@@ -25,7 +25,7 @@ import { handleGenerateImage, handleSubscription, handleEncodeVibe, handleFetchU
 import { resetImagesBroken, logf } from './pipeline.js';
 import { initAuth, handleAdminRequest, setRuntime, writeJSON } from './admin.js';
 
-export const version = 'v1.1.5-st.1';
+export const version = 'v1.2.0-st.1';
 
 const pluginDir = path.dirname(path.dirname(fileURLToPath(import.meta.url))); // plugins/V.Adapter
 const panelPath = path.join(pluginDir, 'panel.html');

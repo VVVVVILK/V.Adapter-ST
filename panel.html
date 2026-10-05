@@ -7,17 +7,22 @@
 <style>
 :root{
   --bg:#0f172a; --fg:hsl(210 20% 96%); --card:hsl(222 24% 12%);
-  --primary:#10b981; --primary-fg:#03110a; --muted:hsl(222 15% 20%);
+  --primary:#10b981; --primary-2:#22c55e; --primary-fg:#03110a; --muted:hsl(222 15% 20%);
+  --ac-h:152; --ac-s:70%; --ac-l:45%;
   --muted-fg:hsl(217 12% 62%); --border:hsl(222 14% 22%);
   --success:#22c55e; --warning:hsl(38 92% 50%); --danger:hsl(0 72% 58%); --info:hsl(200 80% 55%);
   --radius:.625rem;
 }
+/* ── 面板主题：只换主色相，布局与深色底不动（色点开关在侧栏底部）── */
+:root[data-theme="purple"]{--ac-h:262;--ac-s:83%;--ac-l:66%;--primary:#8b5cf6;--primary-2:#a78bfa}
+:root[data-theme="pink"]{--ac-h:330;--ac-s:80%;--ac-l:62%;--primary:#ec4899;--primary-2:#f472b6}
+:root[data-theme="orange"]{--ac-h:25;--ac-s:90%;--ac-l:58%;--primary:#f59e0b;--primary-2:#fb923c}
 *{box-sizing:border-box;margin:0;padding:0}
 html{color-scheme:dark}
 body{
   background:
-    radial-gradient(60rem 30rem at 85% -10%, rgb(16 185 129 / .10), transparent 60%),
-    radial-gradient(50rem 26rem at -10% 110%, rgb(34 197 94 / .07), transparent 60%),
+    radial-gradient(60rem 30rem at 85% -10%, hsl(var(--ac-h) var(--ac-s) var(--ac-l) / .10), transparent 60%),
+    radial-gradient(50rem 26rem at -10% 110%, hsl(var(--ac-h) var(--ac-s) var(--ac-l) / .07), transparent 60%),
     linear-gradient(180deg,#0f172a,#18181b);
   color:var(--fg);font-size:14px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Roboto,sans-serif;
   -webkit-font-smoothing:antialiased;
@@ -31,21 +36,27 @@ a{color:var(--primary)}
 .sidebar{width:250px;flex:none;display:flex;flex-direction:column;border-right:1px solid var(--border);background:hsl(222 24% 12% / .7);backdrop-filter:blur(16px);position:sticky;top:0;height:100vh}
 .sidebar-head{padding:22px 20px 18px;border-bottom:1px solid hsl(222 14% 22% / .6)}
 .brand{display:flex;align-items:center;gap:10px}
-.brand-mark{width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#10b981,#22c55e);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;box-shadow:0 8px 20px rgb(16 185 129 / .35);flex:none;font-family:ui-monospace,Consolas,monospace}
+.brand-mark{width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;box-shadow:0 8px 20px hsl(var(--ac-h) var(--ac-s) var(--ac-l) / .35);flex:none;font-family:ui-monospace,Consolas,monospace}
 .brand-name{font-size:16px;font-weight:700}
 .brand-sub{margin-top:8px;font-size:10.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-fg)}
 .sidebar-nav{flex:1;padding:14px 12px;display:flex;flex-direction:column;gap:4px;overflow-y:auto}
 .nav-btn{position:relative;width:100%;display:flex;flex-direction:column;gap:2px;padding:9px 12px;border:none;border-radius:8px;background:transparent;color:var(--muted-fg);font-size:13.5px;font-weight:500;cursor:pointer;text-align:left;font-family:inherit;transition:background .15s,color .15s}
 .nav-btn small{font-size:11px;font-weight:400;color:hsl(217 12% 48%)}
 .nav-btn:hover{background:hsl(222 18% 17% / .7);color:var(--fg)}
-.nav-btn.active{background:hsl(152 65% 45% / .1);color:var(--fg)}
+.nav-btn.active{background:hsl(var(--ac-h) var(--ac-s) var(--ac-l) / .1);color:var(--fg)}
 .nav-btn.active small{color:hsl(217 12% 62%)}
 .nav-btn.active:before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);height:22px;width:3px;border-radius:999px;background:var(--primary)}
 .sidebar-foot{padding:14px 16px;border-top:1px solid hsl(222 14% 22% / .6);display:flex;flex-direction:column;gap:10px}
-.pill{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:600;color:var(--primary);background:hsl(160 84% 39% / .1);border:1px solid hsl(160 84% 39% / .2);padding:3px 9px;border-radius:999px;align-self:flex-start}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:600;color:var(--primary);background:hsl(var(--ac-h) var(--ac-s) var(--ac-l) / .1);border:1px solid hsl(var(--ac-h) var(--ac-s) var(--ac-l) / .2);padding:3px 9px;border-radius:999px;align-self:flex-start}
 .pill.off{color:var(--danger);background:hsl(0 72% 58% / .1);border-color:hsl(0 72% 58% / .25)}
 .pdot{width:6px;height:6px;border-radius:50%;background:currentColor}
 .foot-note{font-size:11px;color:var(--muted-fg);line-height:1.6}
+/* 主题切换：四个色点，点了就换主色（存 localStorage，纯面板外观） */
+.theme-row{display:flex;align-items:center;gap:9px}
+.theme-lab{font-size:10.5px;font-weight:700;letter-spacing:.1em;color:var(--muted-fg)}
+.theme-dot{width:16px;height:16px;border-radius:50%;border:2px solid transparent;background:var(--td);cursor:pointer;padding:0;flex:none;transition:transform .15s,border-color .15s}
+.theme-dot:hover{transform:scale(1.18)}
+.theme-dot.on{border-color:hsl(0 0% 100% / .9)}
 /* main */
 .main{flex:1;min-width:0;display:flex;flex-direction:column}
 .content{max-width:1080px;width:100%;margin:0 auto;padding:26px 30px 56px}
@@ -85,16 +96,16 @@ a{color:var(--primary)}
 label.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
 label.field:last-child{margin-bottom:0}
 label.field .lab{font-size:12.5px;font-weight:600}
-label.field .lab .step{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;margin-right:6px;border-radius:50%;background:hsl(152 65% 45% / .15);color:var(--primary);font-size:11px;font-weight:800;vertical-align:1px}
+label.field .lab .step{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;margin-right:6px;border-radius:50%;background:hsl(var(--ac-h) var(--ac-s) var(--ac-l) / .15);color:var(--primary);font-size:11px;font-weight:800;vertical-align:1px}
 label.field .hint{font-size:11.5px;color:var(--muted-fg);line-height:1.55}
 input[type=text],input[type=password],select{width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:hsl(222 26% 9% / .8);color:var(--fg);font-size:13.5px;font-family:inherit;outline:none}
-input:focus,select:focus{border-color:hsl(152 65% 45% / .6);box-shadow:0 0 0 3px hsl(152 65% 45% / .12)}
+input:focus,select:focus{border-color:hsl(var(--ac-h) var(--ac-s) var(--ac-l) / .6);box-shadow:0 0 0 3px hsl(var(--ac-h) var(--ac-s) var(--ac-l) / .12)}
 textarea{width:100%;background:hsl(222 18% 14%);color:var(--fg);border:1px solid hsl(222 18% 22%);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:13.5px;resize:vertical;outline:none}
-textarea:focus{border-color:hsl(152 65% 45% / .6);box-shadow:0 0 0 3px hsl(152 65% 45% / .12)}
+textarea:focus{border-color:hsl(var(--ac-h) var(--ac-s) var(--ac-l) / .6);box-shadow:0 0 0 3px hsl(var(--ac-h) var(--ac-s) var(--ac-l) / .12)}
 .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:8px;border:1px solid var(--border);background:var(--muted);color:var(--fg);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:filter .15s,opacity .15s}
 .btn:hover{filter:brightness(1.15)}
 .btn:disabled{opacity:.55;cursor:not-allowed}
-.btn.primary{background:linear-gradient(135deg,#10b981,#22c55e);border-color:transparent;color:var(--primary-fg)}
+.btn.primary{background:linear-gradient(135deg,var(--primary),var(--primary-2));border-color:transparent;color:var(--primary-fg)}
 .btn.ghost{background:transparent}
 .btn.danger{color:var(--danger);border-color:hsl(0 72% 58% / .35);background:hsl(0 72% 58% / .08)}
 .btn.sm{padding:6px 11px;font-size:12px}
@@ -114,7 +125,7 @@ td.prompt{max-width:260px;word-break:break-word}
 .thumb-noimg{height:150px;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px;font-size:11.5px;color:var(--muted-fg)}
 .thumb-fail{height:150px;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px;font-size:12px;color:var(--danger);background:hsl(0 72% 58% / .08);word-break:break-word}
 .tag{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
-.tag.ok{color:var(--success);background:hsl(142 71% 45% / .12);border:1px solid hsl(142 71% 45% / .25)}
+.tag.ok{color:var(--primary);background:hsl(var(--ac-h) var(--ac-s) var(--ac-l) / .12);border:1px solid hsl(var(--ac-h) var(--ac-s) var(--ac-l) / .25)}
 .tag.bad{color:var(--danger);background:hsl(0 72% 58% / .1);border:1px solid hsl(0 72% 58% / .25)}
 .tag.info{color:var(--info);background:hsl(200 80% 55% / .1);border:1px solid hsl(200 80% 55% / .25)}
 .code{display:block;padding:8px 10px;border-radius:8px;background:hsl(222 26% 8%);border:1px solid var(--border);font-size:12px;word-break:break-all}
@@ -126,7 +137,7 @@ td.prompt{max-width:260px;word-break:break-word}
 /* toast */
 #toasts{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:9px;z-index:60}
 .toast{padding:11px 15px;border-radius:10px;border:1px solid var(--border);background:hsl(222 24% 12% / .97);font-size:13px;max-width:380px;box-shadow:0 12px 30px rgb(0 0 0 / .35);line-height:1.6}
-.toast.ok{border-color:hsl(142 71% 45% / .45)}
+.toast.ok{border-color:hsl(var(--ac-h) var(--ac-s) var(--ac-l) / .45)}
 .toast.bad{border-color:hsl(0 72% 58% / .45)}
 /* login mask */
 #mask{position:fixed;inset:0;background:hsl(222 30% 7% / .92);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:80;padding:20px}
@@ -156,7 +167,7 @@ details.explain.warn .explain-body b{color:var(--warning)}
 .qs-step{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px dashed hsl(222 14% 22% / .7)}
 .qs-step:last-child{border-bottom:none}
 .qs-dot{flex:none;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;margin-top:1px}
-.qs-step.done .qs-dot{background:hsl(142 71% 45% / .18);color:var(--success)}
+.qs-step.done .qs-dot{background:hsl(var(--ac-h) var(--ac-s) var(--ac-l) / .18);color:var(--primary)}
 .qs-step.todo .qs-dot{background:hsl(38 92% 50% / .15);color:var(--warning)}
 .qs-step .qs-body{flex:1;min-width:0}
 .qs-step .qs-title{font-size:13.5px;font-weight:600}
@@ -176,6 +187,15 @@ details.explain.warn .explain-body b{color:var(--warning)}
 </style>
 </head>
 <body>
+<script>
+/* 面板主题：赶在首帧渲染前套上，避免刷新时先闪一下默认绿。存 localStorage，纯外观。 */
+(function () {
+  try {
+    var t = localStorage.getItem('v_adapter_panel_theme') || '';
+    if (['purple', 'pink', 'orange'].indexOf(t) >= 0) document.documentElement.dataset.theme = t;
+  } catch (e) { /* 拿不到 localStorage 就用默认 */ }
+})();
+</script>
 
 <!-- 登录 / 首次设密 遮罩 -->
 <div id="mask">
@@ -213,6 +233,13 @@ details.explain.warn .explain-body b{color:var(--warning)}
     </nav>
     <div class="sidebar-foot">
       <span class="pill" id="pill"><span class="pdot"></span><span id="pill-text">在线</span></span>
+      <div class="theme-row" id="theme-row">
+        <span class="theme-lab">主题</span>
+        <button class="theme-dot" type="button" data-theme-set="" style="--td:#10b981" title="默认 · 绿"></button>
+        <button class="theme-dot" type="button" data-theme-set="purple" style="--td:#8b5cf6" title="紫色"></button>
+        <button class="theme-dot" type="button" data-theme-set="pink" style="--td:#ec4899" title="粉色"></button>
+        <button class="theme-dot" type="button" data-theme-set="orange" style="--td:#f59e0b" title="橙色"></button>
+      </div>
       <div class="foot-note" id="foot-version">V.Adapter</div>
       <button class="btn sm ghost" id="btn-logout">退出登录</button>
     </div>
@@ -1148,6 +1175,28 @@ setInterval(() => {
 (async function boot() {
   const ok = await refreshAuth();
   if (ok) await loadAll();
+})();
+/* ── 面板主题切换（侧栏底部色点）──
+   与 body 开头那段小脚本配套：那边负责首帧前套主题，这里负责色点状态与点击。
+   只切 html[data-theme]，不碰服务端配置；登录遮罩不影响换主题（色点在遮罩之外）。 */
+(function () {
+  const KEY = 'v_adapter_panel_theme';
+  const VALID = ['', 'purple', 'pink', 'orange'];
+  const dots = document.querySelectorAll('.theme-dot');
+  function applyTheme(t) {
+    if (t) document.documentElement.dataset.theme = t;
+    else delete document.documentElement.dataset.theme;
+    dots.forEach(b => b.classList.toggle('on', (b.dataset.themeSet || '') === t));
+  }
+  let saved = '';
+  try { saved = localStorage.getItem(KEY) || ''; } catch (e) { /* 忽略 */ }
+  if (VALID.indexOf(saved) < 0) saved = '';
+  applyTheme(saved);
+  dots.forEach(b => b.addEventListener('click', () => {
+    const t = b.dataset.themeSet || '';
+    try { localStorage.setItem(KEY, t); } catch (e) { /* 忽略 */ }
+    applyTheme(t);
+  }));
 })();
 </script>
 </body>

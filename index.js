@@ -28,7 +28,7 @@ import { handleApi } from './lib/virtual-api.js';
 
 // 设置命名空间（保持小写标识，作为 extension_settings 的存储键，不随显示名变化）。
 export const MODULE_NAME = 'v-adapter';
-const version = 'v1.1.5-st.1';
+const version = 'v1.2.0-st.1';
 
 // 生成记录的持久化键（记录本体存 extension_settings，随酒馆设置文件落盘）。
 const GENLOG_KEY = 'v_adapter_genlog';
