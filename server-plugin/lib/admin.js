@@ -420,8 +420,18 @@ async function handleAdminTranslate(req, res) {
             result = await translateCharacter(targetFromSettings(), toStr(body.text));
         } catch (e) {
             console.log(`[V.Adapter] [Translate] 转译失败：${e.message}`);
-            writeAdminErr(res, 502, truncate(e.message, 300));
-            return;
+            if (!wantGenerate) {
+                writeAdminErr(res, 502, truncate(e.message, 300));
+                return;
+            }
+            // 降级直出：扩写干不了（比如生图型模型不会按指令回 JSON）也必须返一张图 —— 用原文当提示词
+            console.log(`[V.Adapter] [Translate] 已降级为原文直出`);
+            const [dw, dh] = defaultSizeWH();
+            result = {
+                prompt: toStr(body.text).trim(), character_prompt: '', main_prompt: '',
+                negative_prompt: mergeNegative(translateDefaultNegative), width: dw, height: dh, steps: 28, cfg_scale: 7.0,
+                degraded: true,
+            };
         }
         console.log(`[V.Adapter] [Translate] 转译成功：${truncate(toStr(body.text).trim(), 40)} → 总提示词 ${[...result.prompt].length} 字`);
     }

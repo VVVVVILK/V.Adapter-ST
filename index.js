@@ -303,10 +303,15 @@ async function generateAndDeliver({ text, translate = false, size = '' }) {
             key: settingsGet.qwenKey(),
             model: settingsGet.qwenModel(),
         };
-        const r = await translateCharacter(target, prompt);
-        prompt = r.prompt;
-        neg = r.negative_prompt;
-        if (size === '') size = `${r.width}x${r.height}`;
+        try {
+            const r = await translateCharacter(target, prompt);
+            prompt = r.prompt;
+            neg = r.negative_prompt;
+            if (size === '') size = `${r.width}x${r.height}`;
+        } catch (err) {
+            // 降级直出：扩写失败也必须返图 —— 用原文当提示词
+            toastr.warning(`扩写失败，已用原文直出：${String(err?.message ?? err).slice(0, 100)}`, 'V.Adapter');
+        }
     }
     toastr.info('正在生成图片，请稍候（单张约 30~60s）…', 'V.Adapter');
     const result = await runGeneration(prompt, neg, size);
@@ -482,10 +487,18 @@ window.__V_ADAPTER_NAI__ = async function (naiBody, options) {
                 key: settingsGet.qwenKey(),
                 model: settingsGet.qwenModel(),
             };
-            const t = await translateCharacter(target, prompt);
-            prompt = t.prompt;
-            neg = t.negative_prompt;
-            if (size === '') size = `${t.width}x${t.height}`;
+            let t = null;
+            try {
+                t = await translateCharacter(target, prompt);
+            } catch (err) {
+                // 降级直出：扩写干不了（比如生图型模型不会按指令回 JSON）也必须返图 —— 用原文当提示词
+                console.log(`[V.Adapter] 扩写失败，已降级为原文直出：${err?.message ?? err}`);
+            }
+            if (t) {
+                prompt = t.prompt;
+                neg = t.negative_prompt;
+                if (size === '') size = `${t.width}x${t.height}`;
+            }
         }
 
         const r = await runGeneration(prompt, neg, size);
